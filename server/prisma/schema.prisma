@@ -1,0 +1,204 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+  id               Int              @id @default(autoincrement())
+  name             String?
+  email            String?          @unique
+  phone            String?          @unique
+  role             String           @default("user") // "user" | "admin"
+  createdAt        DateTime         @default(now()) @map("created_at")
+  orders           Order[]
+  wishlists        Wishlist[]
+  reviews          ProductReview[]  @relation("UserReviews")
+  approvedReviews  ProductReview[]  @relation("ReviewApprovals")
+  addresses        Address[]
+  cartItems        CartItem[]
+
+  @@map("users")
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String?
+  phone     String?
+  code      String
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("otps")
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  street    String
+  city      String
+  state     String
+  pincode   String
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  orders    Order[]
+
+  @@map("addresses")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id              Int                   @id @default(autoincrement())
+  categoryId      Int                   @map("category_id")
+  category        Category              @relation(fields: [categoryId], references: [id])
+  name            String
+  description     String?
+  price           Decimal               @db.Decimal(10, 2)
+  originalPrice   Decimal?              @map("original_price") @db.Decimal(10, 2)
+  quantity        Decimal?              @db.Decimal(10, 2) // weight/volume
+  stock           Int
+  grandmasSays    String?               @map("grandmas_says")
+  ingredients     String?
+  imageUrl        String?               @map("image_url")
+  pairsWellWith   String?               @map("pairs_well_with")
+  tasteMeter      Int?                  @map("taste_meter") // 1-5 scale
+  createdAt       DateTime              @default(now()) @map("created_at")
+  orderItems      OrderItem[]
+  wishlists       Wishlist[]
+  reviews         ProductReview[]
+  sectionProducts HomeSectionProduct[]
+  cartItems       CartItem[]
+
+  @@map("products")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id             Int         @id @default(autoincrement())
+  userId         Int         @map("user_id")
+  user           User        @relation(fields: [userId], references: [id])
+  addressId      Int?        @map("address_id")
+  address        Address?    @relation(fields: [addressId], references: [id])
+  totalAmount    Decimal     @map("total_amount") @db.Decimal(10, 2)
+  orderStatus    String?     @map("order_status") // pending, confirmed, shipped, delivered, cancelled
+  paymentMethod  String?     @map("payment_method") // cod, razorpay
+  paymentId      String?     @map("payment_id") // razorpay payment id
+  paymentStatus  String?     @map("payment_status") // pending, paid, failed
+  razorpayOrderId String?    @map("razorpay_order_id")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  orderItems     OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int     @map("order_id")
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int     @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Decimal @db.Decimal(10, 2)
+  price     Decimal @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int      @map("product_id")
+  product   Product  @relation(fields: [productId], references: [id])
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, productId])
+  @@map("wishlists")
+}
+
+model ProductReview {
+  id             Int       @id @default(autoincrement())
+  productId      Int       @map("product_id")
+  product        Product   @relation(fields: [productId], references: [id])
+  userId         Int       @map("user_id")
+  user           User      @relation(name: "UserReviews", fields: [userId], references: [id])
+  rating         Int // 1-5
+  reviewText     String?   @map("review_text")
+  isApproved     Boolean   @default(false) @map("is_approved")
+  showOnHomepage Boolean   @default(false) @map("show_on_homepage")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  approvedAt     DateTime? @map("approved_at")
+  approvedById   Int?      @map("approved_by")
+  approvedBy     User?     @relation(name: "ReviewApprovals", fields: [approvedById], references: [id])
+
+  @@map("product_reviews")
+}
+
+model HomeHeroBanner {
+  id           Int       @id @default(autoincrement())
+  title        String?
+  subtitle     String?
+  imageUrl     String    @map("image_url")
+  ctaText      String?   @map("cta_text")
+  ctaLink      String?   @map("cta_link")
+  isActive     Boolean   @default(true) @map("is_active")
+  displayOrder Int?      @map("display_order")
+  startAt      DateTime? @map("start_at")
+  endAt        DateTime? @map("end_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("home_hero_banners")
+}
+
+model HomeSection {
+  id           Int                  @id @default(autoincrement())
+  title        String
+  slug         String               @unique
+  isActive     Boolean              @default(true) @map("is_active")
+  displayOrder Int?                 @map("display_order")
+  createdAt    DateTime             @default(now()) @map("created_at")
+  products     HomeSectionProduct[]
+
+  @@map("home_sections")
+}
+
+model HomeSectionProduct {
+  id            Int         @id @default(autoincrement())
+  homeSectionId Int         @map("home_section_id")
+  homeSection   HomeSection @relation(fields: [homeSectionId], references: [id])
+  productId     Int         @map("product_id")
+  product       Product     @relation(fields: [productId], references: [id])
+  displayOrder  Int?        @map("display_order")
+
+  @@map("home_section_products")
+}

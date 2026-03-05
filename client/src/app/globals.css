@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
+:root {
+  --primary-gold: #bf8345;
+  --primary-brown: #3a2212;
+  --secondary-brown: #705844;
+  --accent-gold: #be8948;
+  --bg-beige: #fdfaf5;
+  --text-dark: #3a2212;
+  --text-muted: #8c6b4f;
+  --success-green: #28a745;
+}
+
+body {
+  color: var(--text-dark);
+  background: var(--bg-beige);
+  font-family: 'Outfit', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-serif {
+  font-family: 'Playfair Display', serif;
+}
+
+.custom-shadow-sm {
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.custom-shadow-md {
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.custom-shadow-lg {
+  box-shadow: 0px 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.dashed-border-r {
+  border-right: 1px dashed rgba(255, 255, 255, 0.4);
+}
