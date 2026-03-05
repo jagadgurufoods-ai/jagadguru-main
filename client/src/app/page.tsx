@@ -32,7 +32,7 @@ export default function Home() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/cms/home')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/cms/home`)
       .then(res => res.json())
       .then(data => {
         if (data && data.sections) {
@@ -104,37 +104,37 @@ export default function Home() {
     const borderColor = isGreen ? 'border-[#15a31a]/40' : 'border-[#bf8345]/40';
 
     return (
-      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[580px]">
-        <div className="h-[40%] w-full overflow-hidden">
+      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[500px] md:h-[580px]">
+        <div className="h-[200px] md:h-[40%] w-full overflow-hidden">
           <img src={product.imageUrl || '/assets/image 53.png'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
-        <div className="px-8 pb-8 pt-8 text-center space-y-4 flex-1 flex flex-col">
+        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-6 md:pt-8 text-center space-y-4 flex-1 flex flex-col">
           <div>
-            <h3 className="text-[36px] font-sans font-[700] text-[#000] leading-tight">{product.name}</h3>
-            <p className="text-[14px] text-black/40 font-[500] italic">{product.description || 'Premium quality product'}</p>
+            <h3 className="text-[28px] md:text-[36px] font-sans font-[700] text-[#000] leading-tight">{product.name}</h3>
+            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">{product.description || 'Premium quality product'}</p>
           </div>
-          <p className="text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
-          <div className="flex justify-center gap-2 pt-4">
-            <button className={`flex-1 py-3 border-[1.5px] border-dashed ${borderColor} rounded-[12px] text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{Number(product.price).toFixed(0)}/250g</button>
-            <button className={`flex-1 py-3 border-[1.5px] border-dashed ${borderColor} rounded-[12px] text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
+          <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
+          <div className="flex justify-center gap-2 pt-2 md:pt-4">
+            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{Number(product.price).toFixed(0)}/250g</button>
+            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
             <button
-              className={`flex-1 py-3 rounded-[12px] text-[12px] font-[700] text-white ${shadowColor}`}
+              className={`flex-1 py-2 md:py-3 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-white ${shadowColor}`}
               style={{ backgroundColor: accentColor }}
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center">
-              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-[56px] px-3 gap-1">
+            <div className="mt-auto flex items-center justify-center pt-4">
+              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-[48px] md:h-[56px] px-2 md:px-3 gap-1">
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, -1)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[24px] font-[700]"
+                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[24px] font-[700]"
                 >
                   −
                 </button>
-                <span className="px-6 text-[20px] font-[800] text-[#3a2212] min-w-[40px] text-center">{cartQuantities[product.id]}</span>
+                <span className="px-4 md:px-6 text-[16px] md:text-[20px] font-[800] text-[#3a2212] min-w-[30px] md:min-w-[40px] text-center">{cartQuantities[product.id]}</span>
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, 1)}
-                  className="w-10 h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[24px] font-[700]"
+                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[24px] font-[700]"
                 >
                   +
                 </button>
@@ -143,7 +143,7 @@ export default function Home() {
           ) : (
             <button
               onClick={(e) => handleAddToCart(e, product)}
-              className={`w-full mt-auto py-5 rounded-[16px] text-white text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+              className={`w-full mt-auto py-4 md:py-5 rounded-[12px] md:rounded-[16px] text-white text-[14px] md:text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
               style={{ backgroundColor: accentColor }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
@@ -165,23 +165,23 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <Link key={i} href="/product/1" className="bg-white rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[580px]">
-        <div className="h-[40%] w-full overflow-hidden">
+      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[500px] md:h-[580px]">
+        <div className="h-[200px] md:h-[40%] w-full overflow-hidden">
           <img src="/assets/image 53.png" alt="Magaya" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
-        <div className="px-8 pb-8 pt-8 text-center space-y-4 flex-1 flex flex-col">
+        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-6 md:pt-8 text-center space-y-4 flex-1 flex flex-col">
           <div>
-            <h3 className="text-[36px] font-sans font-[700] text-[#000] leading-tight">Magaya</h3>
-            <p className="text-[14px] text-black/40 font-[500] italic">Sun dried Mango pickle</p>
+            <h3 className="text-[28px] md:text-[36px] font-sans font-[700] text-[#000] leading-tight">Magaya</h3>
+            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">Sun dried Mango pickle</p>
           </div>
-          <p className="text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto">An aromatic preparation that is an all time favourite of pickle lovers</p>
-          <div className="flex justify-center gap-3 pt-4">
-            <button className={`flex-1 py-3 border-[1.5px] border-dashed ${borderColor} rounded-[12px] text-[13px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-3 border-[1.5px] border-dashed ${borderColor} rounded-[12px] text-[13px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-3 rounded-[12px] text-[13px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
+          <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">An aromatic preparation that is an all time favourite of pickle lovers</p>
+          <div className="flex justify-center gap-2 pt-2 md:pt-4">
+            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`flex-1 py-2 md:py-3 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
           </div>
           <button
-            className={`w-full mt-auto py-5 rounded-[16px] text-white text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+            className={`w-full mt-auto py-4 md:py-5 rounded-[12px] md:rounded-[16px] text-white text-[14px] md:text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
             style={{ backgroundColor: accentColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
@@ -194,7 +194,7 @@ export default function Home() {
   };
 
   return (
-    <div className="w-full flex flex-col relative">
+    <div className="w-full flex flex-col relative overflow-x-hidden">
       {/* Toast Notification */}
       <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
         <div className="flex items-center gap-3 bg-white rounded-2xl shadow-2xl border border-black/5 px-6 py-4 min-w-[320px]">
@@ -210,17 +210,15 @@ export default function Home() {
           </button>
         </div>
       </div>
-      {/* Hero Section */}
-      <section className="relative w-full h-[calc(100vh-90px)] min-h-[600px] overflow-hidden">
-        {/* Background Image - The full banner image already contains the platter */}
+
+      {/* Hero Section - Desktop Only */}
+      <section className="relative w-full h-[calc(100vh-90px)] min-h-[600px] overflow-hidden hidden lg:block">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: "url('/assets/image 65.png')" }}
         />
-
-        {/* Category Ribbon */}
         <div className="absolute bottom-0 left-0 w-full bg-[#bf8345] z-20">
-          <div className="max-w-[1440px] mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-[100px]">
+          <div className="max-w-[1440px] mx-auto grid grid-cols-6 h-[100px]">
             {categories.map((cat, idx) => (
               <Link
                 key={idx}
@@ -237,19 +235,44 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Mobile Categories Section - Replaces Banner */}
+      <section className="lg:hidden w-full px-4 pt-8 pb-4 bg-[#fdfaf5]">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="h-[1px] flex-1 bg-[#3a2212]/10"></div>
+          <h2 className="text-[18px] font-[800] text-[#705844] tracking-[0.2em] uppercase">Shop By Category</h2>
+          <div className="h-[1px] flex-1 bg-[#3a2212]/10"></div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          {categories.map((cat, idx) => (
+            <Link
+              key={idx}
+              href={cat.link}
+              className="bg-white rounded-[24px] p-4 flex flex-col items-center gap-4 shadow-sm border border-black/5 hover:scale-[1.02] transition-transform active:scale-95"
+            >
+              <div className="w-20 h-20 rounded-full bg-[#bf8345]/5 flex items-center justify-center p-3">
+                <img src={cat.icon} alt={cat.name} className="w-full h-full object-contain" />
+              </div>
+              <span className="text-[12px] font-[700] text-[#705844] text-center tracking-wide leading-tight px-2">
+                {cat.name.replace('\n', ' ')}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Main Content Sections */}
-      <div className="max-w-[1440px] mx-auto w-full px-6 py-20 space-y-24">
+      <div className="max-w-[1440px] mx-auto w-full px-4 md:px-6 py-12 md:py-20 space-y-16 md:space-y-24">
         {/* Render CMS sections or fallback */}
         {data.sections.length > 0 ? (
           data.sections.map((section, sectionIdx) => (
-            <section key={section.id} className="space-y-12">
-              <div className="flex items-center gap-6">
-                <h2 className="text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">{section.title}</h2>
+            <section key={section.id} className="space-y-8 md:space-y-12">
+              <div className="flex items-center gap-4 md:gap-6">
+                <h2 className="text-[24px] md:text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">{section.title}</h2>
                 <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
               </div>
 
               <div className={sectionIdx === 1 ? 'relative' : ''}>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                   {section.products.map((p) => renderProductCard(p.product, sectionIdx))}
                 </div>
               </div>
@@ -258,120 +281,107 @@ export default function Home() {
         ) : (
           <>
             {/* Best Sellers Section - Fallback */}
-            <section className="space-y-12">
-              <div className="flex items-center gap-6">
-                <h2 className="text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">Best Sellers</h2>
+            <section className="space-y-8 md:space-y-12">
+              <div className="flex items-center gap-4 md:gap-6">
+                <h2 className="text-[24px] md:text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">Best Sellers</h2>
                 <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 {[1, 2, 3, 4].map((i) => renderFallbackCard(i, true))}
-              </div>
-            </section>
-
-            {/* Top Picks Section - Fallback */}
-            <section className="space-y-12">
-              <div className="flex items-center gap-6">
-                <h2 className="text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">Top Picks</h2>
-                <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
-              </div>
-              <div className="relative">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                  {[1, 2, 3, 4].map((i) => renderFallbackCard(i, false))}
-                </div>
               </div>
             </section>
           </>
         )}
 
         {/* Features Section */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-12 py-10 border-t border-[#3a2212]/5">
-          <div className="text-center space-y-4">
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 py-10 border-t border-[#3a2212]/5">
+          <div className="text-center space-y-3 md:space-y-4">
             <div className="flex justify-center">
-              <img src="/assets/Icon (1).png" alt="" className="h-10 w-auto" />
+              <img src="/assets/Icon (1).png" alt="" className="h-8 md:h-10 w-auto" />
             </div>
-            <h4 className="text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">100% Organic</h4>
-            <p className="text-[13px] text-muted leading-relaxed max-w-[280px] mx-auto">Made from freshly picked organic mangoes and spices.</p>
+            <h4 className="text-[14px] md:text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">100% Organic</h4>
+            <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed max-w-[280px] mx-auto">Made from freshly picked organic mangoes and spices.</p>
           </div>
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-3 md:space-y-4">
             <div className="flex justify-center">
-              <img src="/assets/Icon (2).png" alt="" className="h-10 w-auto" />
+              <img src="/assets/Icon (2).png" alt="" className="h-8 md:h-10 w-auto" />
             </div>
-            <h4 className="text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">Handmade with Love</h4>
-            <p className="text-[13px] text-muted leading-relaxed max-w-[280px] mx-auto">Traditional methods passed down through generations.</p>
+            <h4 className="text-[14px] md:text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">Handmade with Love</h4>
+            <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed max-w-[280px] mx-auto">Traditional methods passed down through generations.</p>
           </div>
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-3 md:space-y-4">
             <div className="flex justify-center">
-              <img src="/assets/Icon (3).png" alt="" className="h-10 w-auto" />
+              <img src="/assets/Icon (3).png" alt="" className="h-8 md:h-10 w-auto" />
             </div>
-            <h4 className="text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">Guaranteed Quality</h4>
-            <p className="text-[13px] text-muted leading-relaxed max-w-[280px] mx-auto">Rigorous quality checks for every single bottle.</p>
+            <h4 className="text-[14px] md:text-[16px] font-[700] text-[#3a2212] uppercase tracking-[0.1em]">Guaranteed Quality</h4>
+            <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed max-w-[280px] mx-auto">Rigorous quality checks for every single bottle.</p>
           </div>
         </section>
       </div>
 
       {/* Heritage Story Section */}
-      <section className="relative w-full aspect-[21/9] flex items-center overflow-hidden">
+      <section className="relative w-full aspect-video md:aspect-[21/9] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center brightness-[0.85]"
           style={{ backgroundImage: "url('/assets/image 65.png')" }}
         />
-        <div className="relative max-w-[1440px] mx-auto px-12 w-full grid grid-cols-1 lg:grid-cols-2">
-          <div className="space-y-8 bg-black/0 p-10 rounded-2xl">
-            <div className="space-y-2">
-              <span className="text-white text-[14px] font-[700] tracking-[0.3em] uppercase opacity-80">OUR LEGACY</span>
-              <h2 className="text-[64px] font-serif font-[700] text-white leading-[1.1]">Our Heritage Story</h2>
+        <div className="relative max-w-[1440px] mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2">
+          <div className="space-y-4 md:space-y-8 p-6 md:p-10 rounded-2xl bg-black/10 backdrop-blur-[2px] lg:bg-transparent lg:backdrop-blur-0">
+            <div className="space-y-1 md:space-y-2">
+              <span className="text-white text-[12px] md:text-[14px] font-[700] tracking-[0.3em] uppercase opacity-80">OUR LEGACY</span>
+              <h2 className="text-[32px] md:text-[64px] font-serif font-[700] text-white leading-tight md:leading-[1.1]">Our Heritage Story</h2>
             </div>
-            <div className="space-y-6 text-white/90 text-[18px] leading-relaxed max-w-[600px] font-[300]">
+            <div className="space-y-4 md:space-y-6 text-white/90 text-[14px] md:text-[18px] leading-relaxed max-w-[600px] font-[300]">
               <p>Jagadguru Foods began in a <strong>small family kitchen</strong> in the heart of Andhra. For three generations, we have preserved the flavors of South Indian heritage.</p>
-              <p>Every jar of pickle and every packet of spice reflects our commitment to purity, traditional methods, and the soulful taste of home-cooked food. We don't just sell ingredients; we share a legacy.</p>
+              <p className="hidden md:block">Every jar of pickle and every packet of spice reflects our commitment to purity, traditional methods, and the soulful taste of home-cooked food.</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Certifications Section */}
-      <section className="w-full bg-[#fdfaf5] py-24 space-y-16">
-        <h2 className="text-center text-[32px] font-serif font-[700] text-[#3a2212]">Our Certifications</h2>
-        <div className="max-w-[1440px] mx-auto px-6 flex flex-wrap justify-center items-center gap-16 opacity-80 grayscale hover:grayscale-0 transition-all duration-700">
-          <img src="/assets/image (2) 1.png" alt="FSSAI" className="h-[50px] w-auto" />
-          <img src="/assets/image 71.png" alt="Jaivik Bharat" className="h-[70px] w-auto" />
-          <img src="/assets/image 72.png" alt="India Organic" className="h-[70px] w-auto" />
-          <img src="/assets/image 73.png" alt="USDA Organic" className="h-[80px] w-auto" />
-          <img src="/assets/image 74.png" alt="Other" className="h-[80px] w-auto" />
-          <img src="/assets/Group 1000001883.png" alt="Ecocert" className="h-[80px] w-auto" />
+      <section className="w-full bg-[#fdfaf5] py-12 md:py-24 space-y-8 md:space-y-16">
+        <h2 className="text-center text-[24px] md:text-[32px] font-serif font-[700] text-[#3a2212]">Our Certifications</h2>
+        <div className="max-w-[1440px] mx-auto px-6 flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
+          <img src="/assets/image (2) 1.png" alt="FSSAI" className="h-[30px] md:h-[50px] w-auto" />
+          <img src="/assets/image 71.png" alt="Jaivik Bharat" className="h-[40px] md:h-[70px] w-auto" />
+          <img src="/assets/image 72.png" alt="India Organic" className="h-[40px] md:h-[70px] w-auto" />
+          <img src="/assets/image 73.png" alt="USDA Organic" className="h-[50px] md:h-[80px] w-auto" />
+          <img src="/assets/image 74.png" alt="Other" className="h-[50px] md:h-[80px] w-auto" />
+          <img src="/assets/Group 1000001883.png" alt="Ecocert" className="h-[50px] md:h-[80px] w-auto" />
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="w-full bg-[#1a1a1a] text-white py-20">
-        <div className="max-w-[1440px] mx-auto px-12 grid grid-cols-1 md:grid-cols-4 gap-16">
-          <div className="space-y-8 col-span-1 md:col-span-1">
-            <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[80px] w-auto brightness-0 invert" />
+      <footer className="w-full bg-[#1a1a1a] text-white py-12 md:py-20">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-16">
+          <div className="space-y-6 md:space-y-8 col-span-1 border-b border-white/10 pb-12 md:border-none md:pb-0">
+            <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[60px] md:h-[80px] w-auto brightness-0 invert" />
             <p className="text-[14px] text-white/60 leading-relaxed font-[300]">Authentic South Indian pickles and powders made with traditional recipes and love.</p>
             <div className="flex gap-4">
               <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-colors">f</div>
               <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-colors">i</div>
             </div>
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             <h4 className="text-[14px] font-[700] tracking-[0.2em] uppercase">QUICK LINKS</h4>
-            <ul className="space-y-4 text-[14px] text-white/50 font-[300]">
+            <ul className="space-y-3 md:space-y-4 text-[14px] text-white/50 font-[300]">
               <li className="hover:text-white cursor-pointer transition-colors">Our Story</li>
               <li className="hover:text-white cursor-pointer transition-colors">All Products</li>
               <li className="hover:text-white cursor-pointer transition-colors">Bulk Orders</li>
               <li className="hover:text-white cursor-pointer transition-colors">Contact Us</li>
             </ul>
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             <h4 className="text-[14px] font-[700] tracking-[0.2em] uppercase">SUPPORT</h4>
-            <ul className="space-y-4 text-[14px] text-white/50 font-[300]">
+            <ul className="space-y-3 md:space-y-4 text-[14px] text-white/50 font-[300]">
               <li className="hover:text-white cursor-pointer transition-colors">Shipping Policy</li>
               <li className="hover:text-white cursor-pointer transition-colors">Refund Policy</li>
               <li className="hover:text-white cursor-pointer transition-colors">Terms of Service</li>
               <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
             </ul>
           </div>
-          <div className="space-y-8">
+          <div className="space-y-6 md:space-y-8">
             <h4 className="text-[14px] font-[700] tracking-[0.2em] uppercase">NEWSLETTER</h4>
             <p className="text-[14px] text-white/50 font-[300]">Join our mailing list for updates and traditional recipes.</p>
             <div className="flex border-b border-white/20 pb-2">

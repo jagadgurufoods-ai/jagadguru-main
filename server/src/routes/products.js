@@ -7,24 +7,24 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 // Get all products
 router.get('/', async (req, res) => {
     try {
+        const { search, categoryId } = req.query;
+
+        const where = {};
+        if (search) {
+            where.OR = [
+                { name: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } },
+            ];
+        }
+        if (categoryId) {
+            where.categoryId = parseInt(categoryId);
+        }
+
         const products = await prisma.product.findMany({
+            where,
             include: { category: true }
         });
         res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get single product
-router.get('/:id', async (req, res) => {
-    try {
-        const product = await prisma.product.findUnique({
-            where: { id: parseInt(req.params.id) },
-            include: { category: true, reviews: { where: { isApproved: true }, include: { user: { select: { name: true } } } } }
-        });
-        if (!product) return res.status(404).json({ error: 'Product not found' });
-        res.json(product);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

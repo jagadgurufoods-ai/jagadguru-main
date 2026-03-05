@@ -5,7 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import ProductForm from './ProductForm';
 import CategoryForm from './CategoryForm';
 
-const API_URL = 'http://localhost:5001/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 interface Product {
     id: number;

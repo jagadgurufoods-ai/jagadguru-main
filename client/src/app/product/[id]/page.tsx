@@ -38,7 +38,7 @@ export default function ProductDetail() {
     useEffect(() => {
         if (!id) return;
 
-        fetch(`http://localhost:5001/api/products/${id}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error('Product not found');
                 return res.json();

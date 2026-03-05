@@ -28,7 +28,7 @@ export default function CategoryForm({ onClose, onSuccess }: CategoryFormProps) 
         setError(null);
 
         try {
-            const response = await fetch('http://localhost:5001/api/categories', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/categories`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -34,7 +34,7 @@ export default function ProductForm({ onClose, onSuccess }: ProductFormProps) {
     });
 
     useEffect(() => {
-        fetch('http://localhost:5001/api/categories')
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/categories`)
             .then(res => res.json())
             .then(data => setCategories(data))
             .catch(err => console.error('Failed to fetch categories:', err));
@@ -65,7 +65,7 @@ export default function ProductForm({ onClose, onSuccess }: ProductFormProps) {
         }
 
         try {
-            const response = await fetch('http://localhost:5001/api/products', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

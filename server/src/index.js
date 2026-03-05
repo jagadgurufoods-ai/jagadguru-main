@@ -29,9 +29,13 @@ app.use('/api/wishlist', require('./routes/wishlists'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/cart', require('./routes/cart'));
 
-const server = require('http').createServer(app);
-server.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+// Only start the server when not running on Vercel
+if (process.env.VERCEL !== '1') {
+    const server = require('http').createServer(app);
+    server.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
 
-
+// Export for Vercel serverless
+module.exports = app;
