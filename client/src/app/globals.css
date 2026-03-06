@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: "Poppins", sans-serif;
+  --font-serif: "Playfair Display", serif;
+}
+
 :root {
   --primary-gold: #bf8345;
   --primary-brown: #3a2212;
@@ -14,7 +19,7 @@
 body {
   color: var(--text-dark);
   background: var(--bg-beige);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 

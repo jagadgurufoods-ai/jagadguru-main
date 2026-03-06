@@ -113,16 +113,16 @@ export default function Home() {
     };
 
     return (
-      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[580px]">
-        <div className="h-[200px] md:h-[40%] w-full overflow-hidden">
+      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[480px]">
+        <div className="h-[180px] md:h-[200px] w-full overflow-hidden">
           <img src={product.imageUrl || '/assets/image 53.png'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
-        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-6 md:pt-8 text-center space-y-4 flex-1 flex flex-col">
+        <div className="px-6 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center space-y-3 flex-1 flex flex-col">
           <div>
-            <h3 className="text-[22px] md:text-[28px] font-sans font-[700] text-[#000] leading-tight">{product.name}</h3>
-            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">{product.description || 'Premium quality product'}</p>
+            <h3 className="text-[20px] md:text-[24px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">{product.name}</h3>
+            <p className="text-[11px] md:text-[13px] text-black/40 font-[500] italic line-clamp-1">{product.description || 'Premium quality product'}</p>
           </div>
-          <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
+          <p className="text-[11px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:line-clamp-2">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
           <div className="flex justify-center gap-2 pt-2 md:pt-4">
             <button
               onClick={(e) => handleWeightClick(e, '250g')}
@@ -138,18 +138,18 @@ export default function Home() {
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center pt-4">
-              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-[48px] md:h-[56px] px-2 md:px-3 gap-1">
+            <div className="mt-auto flex items-center justify-center pt-3">
+              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-[40px] md:h-[48px] px-2 md:px-3 gap-1">
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, -1)}
-                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[24px] font-[700]"
+                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[16px] md:text-[20px] font-[700]"
                 >
                   −
                 </button>
-                <span className="px-4 md:px-6 text-[16px] md:text-[20px] font-[800] text-[#3a2212] min-w-[30px] md:min-w-[40px] text-center">{cartQuantities[product.id]}</span>
+                <span className="px-3 md:px-5 text-[14px] md:text-[16px] font-[800] text-[#3a2212] min-w-[25px] md:min-w-[32px] text-center">{cartQuantities[product.id]}</span>
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, 1)}
-                  className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[24px] font-[700]"
+                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[16px] md:text-[20px] font-[700]"
                 >
                   +
                 </button>
@@ -158,7 +158,7 @@ export default function Home() {
           ) : (
             <button
               onClick={(e) => handleAddToCart(e, product)}
-              className={`w-full mt-auto py-4 md:py-5 rounded-[12px] md:rounded-[16px] text-white text-[14px] md:text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+              className={`w-full mt-auto py-3 md:py-3.5 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
               style={{ backgroundColor: accentColor }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
@@ -180,23 +180,23 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[500px] md:h-[580px]">
-        <div className="h-[200px] md:h-[40%] w-full overflow-hidden">
+      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[480px]">
+        <div className="h-[180px] md:h-[200px] w-full overflow-hidden">
           <img src="/assets/image 53.png" alt="Magaya" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
-        <div className="px-6 md:px-8 pb-6 md:pb-8 pt-6 md:pt-8 text-center space-y-4 flex-1 flex flex-col">
+        <div className="px-6 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center space-y-3 flex-1 flex flex-col">
           <div>
-            <h3 className="text-[28px] md:text-[36px] font-sans font-[700] text-[#000] leading-tight">Magaya</h3>
-            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">Sun dried Mango pickle</p>
+            <h3 className="text-[20px] md:text-[24px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">Magaya</h3>
+            <p className="text-[11px] md:text-[13px] text-black/40 font-[500] italic line-clamp-1">Sun dried Mango pickle</p>
           </div>
-          <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">An aromatic preparation that is an all time favourite of pickle lovers</p>
-          <div className="flex justify-center gap-2 pt-2 md:pt-4">
-            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-2 md:py-3 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
+          <p className="text-[11px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
+          <div className="flex justify-center gap-2 pt-1 md:pt-2">
+            <button className={`flex-1 py-2 md:py-2.5 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`flex-1 py-2 md:py-2.5 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`flex-1 py-2 md:py-2.5 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
           </div>
           <button
-            className={`w-full mt-auto py-4 md:py-5 rounded-[12px] md:rounded-[16px] text-white text-[14px] md:text-[16px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+            className={`w-full mt-auto py-3.5 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
             style={{ backgroundColor: accentColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
