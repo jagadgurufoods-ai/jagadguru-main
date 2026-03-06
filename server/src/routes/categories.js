@@ -16,10 +16,13 @@ router.get('/', async (req, res) => {
 
 // Create category (Admin)
 router.post('/', async (req, res) => {
-    const { title, description } = req.body;
+    let { title, description, slug } = req.body;
     try {
+        if (!slug && title) {
+            slug = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        }
         const category = await prisma.category.create({
-            data: { title, description }
+            data: { title, description, slug }
         });
         res.status(201).json(category);
     } catch (error) {

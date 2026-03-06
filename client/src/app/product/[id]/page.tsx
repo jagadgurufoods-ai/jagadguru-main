@@ -31,6 +31,7 @@ export default function ProductDetail() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
+    const [selectedWeight, setSelectedWeight] = useState('250g');
     const [addingToCart, setAddingToCart] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
     const [showToast, setShowToast] = useState(false);
@@ -63,7 +64,7 @@ export default function ProductDetail() {
                 price: Number(product.price),
                 imageUrl: product.imageUrl,
                 stock: product.stock
-            }, quantity);
+            }, quantity, selectedWeight);
             setAddedToCart(true);
             setShowToast(true);
             setTimeout(() => setShowToast(false), 3000);
@@ -86,7 +87,7 @@ export default function ProductDetail() {
             price: Number(product.price),
             imageUrl: product.imageUrl,
             stock: product.stock
-        }, newQty);
+        }, newQty, selectedWeight);
     };
 
     if (loading) {
@@ -188,12 +189,19 @@ export default function ProductDetail() {
                                     </button>
                                 </div>
 
-                                <div className="flex gap-3">
-                                    {product.quantity && (
-                                        <button className="px-8 py-4 bg-[#bf8345] rounded-[12px] text-[13px] font-[700] text-white shadow-lg shadow-orange-100/50">
-                                            {Number(product.quantity).toFixed(0)}g
+                                <div className="flex gap-2">
+                                    {['250g', '500g', '1KG'].map((w) => (
+                                        <button
+                                            key={w}
+                                            onClick={() => setSelectedWeight(w)}
+                                            className={`px-6 py-4 rounded-[12px] text-[13px] font-[800] transition-all border ${selectedWeight === w
+                                                    ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
+                                                    : 'bg-white text-[#3a2212]/40 border-black/10 hover:border-black/20'
+                                                }`}
+                                        >
+                                            {w}
                                         </button>
-                                    )}
+                                    ))}
                                 </div>
                             </div>
 

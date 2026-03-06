@@ -18,6 +18,7 @@ interface CartItem {
     productId: number;
     quantity: number;
     product: CartProduct;
+    selectedWeight?: string;
 }
 
 interface CartContextType {
@@ -25,7 +26,7 @@ interface CartContextType {
     itemCount: number;
     totalPrice: number;
     loading: boolean;
-    addToCart: (product: CartProduct, quantity?: number) => Promise<void>;
+    addToCart: (product: CartProduct, quantity?: number, weight?: string) => Promise<void>;
     removeFromCart: (id: number) => Promise<void>;
     updateQuantity: (id: number, quantity: number) => Promise<void>;
     clearCart: () => Promise<void>;
@@ -98,68 +99,83 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [items, isLoggedIn]);
 
-    const addToCart = async (product: CartProduct, quantity = 1) => {
+    const addToCart = async (product: CartProduct, quantity = 1, weight?: string) => {
+        // Optimistic Update
+        const optimisticId = Date.now();
+        const newItem: CartItem = {
+            id: optimisticId,
+            productId: product.id,
+            quantity,
+            product,
+            selectedWeight: weight
+        };
+
+        setItems(prev => {
+            const existing = prev.find(i => i.productId === product.id && i.selectedWeight === weight);
+            if (existing) {
+                return prev.map(i =>
+                    (i.productId === product.id && i.selectedWeight === weight)
+                        ? { ...i, quantity: i.quantity + quantity }
+                        : i
+                );
+            }
+            return [...prev, newItem];
+        });
+
         if (isLoggedIn && token) {
             try {
-                await fetch(`${API_URL}/cart`, {
+                const res = await fetch(`${API_URL}/cart`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ productId: product.id, quantity })
+                    body: JSON.stringify({ productId: product.id, quantity, weight })
                 });
-                await fetchCart();
+                if (!res.ok) throw new Error('Failed to add');
+                await fetchCart(); // Re-sync with server
             } catch (err) {
                 console.error('Failed to add to cart:', err);
+                await fetchCart(); // Rollback/Re-sync
             }
-        } else {
-            setItems(prev => {
-                const existing = prev.find(i => i.productId === product.id);
-                if (existing) {
-                    return prev.map(i =>
-                        i.productId === product.id ? { ...i, quantity: i.quantity + quantity } : i
-                    );
-                }
-                return [...prev, {
-                    id: Date.now(),
-                    productId: product.id,
-                    quantity,
-                    product
-                }];
-            });
         }
     };
 
     const removeFromCart = async (id: number) => {
+        const previousItems = [...items];
+        setItems(prev => prev.filter(i => i.id !== id));
+
         if (isLoggedIn && token) {
             try {
-                await fetch(`${API_URL}/cart/${id}`, {
+                const res = await fetch(`${API_URL}/cart/${id}`, {
                     method: 'DELETE',
                     headers: { Authorization: `Bearer ${token}` }
                 });
+                if (!res.ok) throw new Error('Failed to remove');
                 await fetchCart();
             } catch (err) {
                 console.error('Failed to remove from cart:', err);
+                setItems(previousItems); // Rollback
             }
-        } else {
-            setItems(prev => prev.filter(i => i.id !== id));
         }
     };
 
     const updateQuantity = async (id: number, quantity: number) => {
         if (quantity < 1) return removeFromCart(id);
 
+        const previousItems = [...items];
+        setItems(prev => prev.map(i => i.id === id ? { ...i, quantity } : i));
+
         if (isLoggedIn && token) {
             try {
-                await fetch(`${API_URL}/cart/${id}`, {
+                const res = await fetch(`${API_URL}/cart/${id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
                     body: JSON.stringify({ quantity })
                 });
+                if (!res.ok) throw new Error('Failed to update');
                 await fetchCart();
             } catch (err) {
                 console.error('Failed to update cart:', err);
+                setItems(previousItems); // Rollback
             }
-        } else {
-            setItems(prev => prev.map(i => i.id === id ? { ...i, quantity } : i));
         }
     };
 

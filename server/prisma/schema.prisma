@@ -61,6 +61,7 @@ model Address {
 model Category {
   id          Int       @id @default(autoincrement())
   title       String
+  slug        String    @unique
   description String?
   createdAt   DateTime  @default(now()) @map("created_at")
   products    Product[]

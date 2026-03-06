@@ -1,33 +1,55 @@
 'use client';
 
-import { useState } from 'react';
-import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter } from 'lucide-react';
+import { useState, useEffect, use } from 'react';
+import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useCart } from '../../context/CartContext';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
-    const [priceRange, setPriceRange] = useState(500);
+    const { slug } = use(params);
+    const { addToCart } = useCart();
+    const [priceRange, setPriceRange] = useState(1000);
+    const [categories, setCategories] = useState<any[]>([]);
+    const [products, setProducts] = useState<any[]>([]);
+    const [currentCategory, setCurrentCategory] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    const categories = [
-        { name: 'Pickles', count: 5, sub: ['Magaya', 'Magaya', 'Magaya', 'Magaya', 'Magaya'] },
-        { name: 'Powders', count: 0 },
-        { name: 'Snacks', count: 0 }
-    ];
+    const [productStates, setProductStates] = useState<{ [key: number]: { quantity: number, weight: string } }>({});
 
-    const filters = [
-        { name: 'Mango Special', count: 5 },
-        { name: 'Spiced Blends', count: 3 },
-        { name: 'South & Hot', count: 2 },
-        { name: 'Pickle combinations', count: 1 }
-    ];
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const catRes = await fetch(`${API_URL}/categories`);
+                const catData = await catRes.json();
+                setCategories(catData);
 
-    const products = [
-        { id: 1, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' },
-        { id: 2, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' },
-        { id: 3, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' },
-        { id: 4, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' },
-        { id: 5, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' },
-        { id: 6, name: 'Magaya', subtitle: 'Sun dried Mango pickle', desc: 'An aromatic preparation that is an all time favourite of pickle lovers' }
-    ];
+                const foundCat = catData.find((c: any) => c.slug === slug);
+                setCurrentCategory(foundCat);
+
+                if (foundCat) {
+                    const prodRes = await fetch(`${API_URL}/products?categoryId=${foundCat.id}`);
+                    const prodData = await prodRes.json();
+                    setProducts(prodData);
+
+                    // Initialize product states
+                    const initialStates = prodData.reduce((acc: any, p: any) => {
+                        acc[p.id] = { quantity: 1, weight: '250g' };
+                        return acc;
+                    }, {});
+                    setProductStates(initialStates);
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [slug]);
 
     const steps = [
         { title: 'Source to Peak', desc: 'We select the finest fruits and vegetables at their nutritional peak from local organic farms.', icon: '/assets/icon_source_to_peak.png' },
@@ -36,28 +58,33 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         { title: 'Land-Press & Seal', desc: 'Each batch is hand-pressed into glass jars and sealed with heritage techniques for freshness.', icon: '/assets/icon_press_and_seal.png' }
     ];
 
+    if (loading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-[#fcf9f4]">
+                <Loader2 className="w-10 h-10 text-[#bf8345] animate-spin" />
+                <p className="text-[#3a2212]/50 font-[500] tracking-wide italic">Brewing your heritage flavors...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-[#fcf9f4] font-sans text-[#3a2212]">
             <div className="max-w-[1440px] mx-auto">
                 <div className="flex flex-col lg:flex-row">
-                    {/* Left Sidebar - Hidden on mobile, shown on desktop */}
+                    {/* Left Sidebar */}
                     <aside className="hidden lg:block w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20 shrink-0">
                         <div>
                             <h2 className="text-[20px] font-serif font-[700] mb-8">Categories</h2>
                             <div className="space-y-6">
-                                {categories.map((cat, i) => (
-                                    <div key={i} className="space-y-4">
-                                        <div className="flex justify-between items-center group cursor-pointer">
-                                            <span className={`text-[15px] font-[700] ${i === 0 ? 'text-[#3a2212]' : 'text-[#3a2212]/40'}`}>{cat.name}</span>
-                                            <ChevronDown className={`w-4 h-4 ${i === 0 ? 'text-[#3a2212]' : 'text-[#3a2212]/20'}`} />
-                                        </div>
-                                        {cat.sub && i === 0 && (
-                                            <div className="pl-2 space-y-3">
-                                                {cat.sub.map((s, j) => (
-                                                    <div key={j} className="text-[14px] text-[#3a2212]/30 font-[500] hover:text-[#bf8345] transition-colors cursor-pointer">{s}</div>
-                                                ))}
-                                            </div>
-                                        )}
+                                {categories.map((cat) => (
+                                    <div key={cat.id} className="space-y-4">
+                                        <Link
+                                            href={`/category/${cat.slug}`}
+                                            className="flex justify-between items-center group cursor-pointer"
+                                        >
+                                            <span className={`text-[15px] font-[700] ${cat.slug === slug ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
+                                            <ChevronDown className={`w-4 h-4 ${cat.slug === slug ? 'text-[#bf8345]' : 'text-[#3a2212]/20 group-hover:text-[#3a2212]/40'}`} />
+                                        </Link>
                                     </div>
                                 ))}
                             </div>
@@ -66,15 +93,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <div className="space-y-8">
                             <h2 className="text-[18px] font-serif font-[700]">Filter By</h2>
                             <div className="space-y-4">
-                                {filters.map((f, i) => (
-                                    <div key={i} className="flex justify-between items-center group cursor-pointer">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-4 h-4 rounded border border-[#3a2212]/20 group-hover:border-[#bf8345]" />
-                                            <span className="text-[14px] font-[600] text-[#3a2212]/60 uppercase tracking-tighter">{f.name}</span>
-                                        </div>
-                                        <span className="text-[12px] text-[#3a2212]/20 font-[700]">{f.count}</span>
-                                    </div>
-                                ))}
+                                <div className="flex justify-between items-center group cursor-pointer text-[#3a2212]/30">
+                                    <span className="text-[12px] font-[800] uppercase tracking-widest">No Active Filters</span>
+                                </div>
                             </div>
                         </div>
 
@@ -84,14 +105,14 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                 <input
                                     type="range"
                                     min="0"
-                                    max="1000"
+                                    max="5000"
                                     value={priceRange}
                                     onChange={(e) => setPriceRange(parseInt(e.target.value))}
                                     className="w-full accent-[#bf8345] h-1 bg-[#3a2212]/5 rounded-lg appearance-none cursor-pointer"
                                 />
                                 <div className="flex justify-between text-[11px] font-[800] text-[#3a2212]/30">
                                     <span>Rs. 0</span>
-                                    <span>Rs. 1000</span>
+                                    <span>Rs. {priceRange}</span>
                                 </div>
                             </div>
                         </div>
@@ -104,70 +125,162 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </div>
                     </aside>
 
-                    {/* Mobile Filter Button */}
-                    <div className="lg:hidden px-6 pt-8 flex items-center justify-between">
-                        <h1 className="text-[24px] font-serif font-[700]">Our Products</h1>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-black/5 text-[14px] font-[700]">
-                            <Filter className="w-4 h-4" /> Filters
-                        </button>
+                    {/* Mobile Header */}
+                    <div className="lg:hidden relative">
+                        <div className="absolute inset-0 h-[240px] z-0">
+                            <img
+                                src={currentCategory?.imageUrl || "/assets/image 73.png"}
+                                className="w-full h-full object-cover opacity-20"
+                                alt=""
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-b from-[#fcf9f4]/50 to-[#fcf9f4]" />
+                        </div>
+
+                        <div className="relative z-10 px-6 pt-8 pb-4 space-y-6">
+                            <Link href="/" className="text-[10px] font-[900] text-[#bf8345] uppercase tracking-[0.3em] bg-white/50 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#bf8345]/10 inline-block">← BACK TO HOME</Link>
+                            <div className="space-y-1">
+                                <span className="text-[12px] font-[800] text-[#bf8345] uppercase tracking-[0.2em] opacity-60">HAND-CRAFTED</span>
+                                <div className="flex items-center justify-between gap-4">
+                                    <h1 className="text-[36px] sm:text-[42px] font-serif font-[700] tracking-tight text-[#3a2212] leading-tight">{currentCategory?.title || 'Our Products'}</h1>
+                                    <button className="shrink-0 flex items-center gap-2 px-4 py-3 bg-white rounded-[16px] border border-[#3a2212]/5 text-[13px] font-[800] shadow-xl shadow-[#3a2212]/5 text-[#3a2212]">
+                                        <Filter className="w-4 h-4 text-[#bf8345]" />
+                                    </button>
+                                </div>
+                                <p className="text-[13px] text-[#3a2212]/50 font-[500] italic leading-relaxed pt-2 line-clamp-2">
+                                    {currentCategory?.description || "Authentic heritage flavors passed down through generations."}
+                                </p>
+                            </div>
+
+                            {/* Horizontal Categories Scroll for Mobile */}
+                            <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar -mx-2 px-2">
+                                {categories.map((cat) => (
+                                    <Link
+                                        key={cat.id}
+                                        href={`/category/${cat.slug}`}
+                                        className={`shrink-0 px-5 py-2.5 rounded-full text-[13px] font-[700] transition-all border ${cat.slug === slug
+                                            ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
+                                            : 'bg-white text-[#3a2212]/40 border-[#3a2212]/5 hover:border-[#3a2212]/20'
+                                            }`}
+                                    >
+                                        {cat.title}
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     {/* Main Content Area */}
                     <main className="flex-1 p-6 md:p-12 space-y-8 md:space-y-16">
-                        {/* Product Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-                            {products.map((p) => (
-                                <Link key={p.id} href={`/product/${p.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-xl transition-all duration-500 min-h-[500px] md:h-[580px] flex flex-col relative">
-                                    <div className="h-[200px] md:h-[40%] w-full overflow-hidden relative">
-                                        <img src="/assets/image 53.png" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                                    </div>
-                                    <div className="p-6 md:p-8 text-center flex-1 flex flex-col space-y-4">
-                                        <div>
-                                            <h3 className="text-[28px] md:text-[32px] font-sans font-[700] text-[#3a2212] leading-tight">{p.name}</h3>
-                                            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">{p.subtitle}</p>
-                                        </div>
-                                        <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[220px] mx-auto hidden md:block">{p.desc}</p>
-
-                                        <div className="flex justify-center gap-2 pt-2 mt-auto">
-                                            <div className="flex items-center bg-white rounded-lg border border-black/5 h-[44px] md:h-[48px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
-                                                <button className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30" onClick={(e) => { e.preventDefault(); /* handle minus */ }}>
-                                                    <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                                                </button>
-                                                <span className="px-3 md:px-4 text-[14px] md:text-[15px] font-[700] text-[#3a2212]">1</span>
-                                                <button className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30" onClick={(e) => { e.preventDefault(); /* handle plus */ }}>
-                                                    <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
-                                                </button>
-                                            </div>
-                                            <button className="flex-1 py-2.5 md:py-3 bg-[#5cb85c] rounded-[10px] text-white text-[12px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase" onClick={(e) => { e.preventDefault(); /* handle add to cart */ }}>ADD TO CART</button>
-                                        </div>
-
-                                        <div className="flex justify-center gap-1.5 md:gap-2">
-                                            <button className="flex-1 py-1 md:py-1.5 border border-dashed border-black/10 rounded-[6px] md:rounded-[8px] text-[10px] md:text-[11px] font-[700] text-black/30">800/1kg</button>
-                                            <button className="flex-1 py-1 md:py-1.5 border border-dashed border-black/10 rounded-[8px] text-[10px] md:text-[11px] font-[700] text-black/30">800/1kg</button>
-                                            <button className="flex-1 py-1 md:py-1.5 bg-[#5cb85c] rounded-[6px] md:rounded-[8px] text-white text-[10px] md:text-[11px] font-[700] shadow-sm">800/1kg</button>
-                                        </div>
-                                    </div>
-                                    <button className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); /* handle heart */ }}>
-                                        <Heart className="w-4 h-4 md:w-5 md:h-5" />
-                                    </button>
-                                </Link>
-                            ))}
+                        {/* Title for Desktop */}
+                        <div className="hidden lg:block space-y-2">
+                            <h1 className="text-[48px] font-serif font-[700] tracking-tight">{currentCategory?.title || 'Our Products'}</h1>
+                            <p className="text-black/40 font-[500] italic max-w-xl">{currentCategory?.description || "Authentic heritage flavors passed down through generations."}</p>
                         </div>
+
+                        {/* Product Grid */}
+                        {products.length === 0 ? (
+                            <div className="py-20 text-center space-y-4">
+                                <div className="w-16 h-16 bg-black/[0.03] rounded-full flex items-center justify-center mx-auto">
+                                    <ShoppingCart className="w-8 h-8 text-black/10" />
+                                </div>
+                                <p className="text-black/30 font-[600] uppercase tracking-widest text-[13px]">No products available in this category yet</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+                                {products.map((p) => {
+                                    const state = productStates[p.id] || { quantity: 1, weight: '250g' };
+
+                                    const handleQuantity = (delta: number) => {
+                                        setProductStates(prev => ({
+                                            ...prev,
+                                            [p.id]: { ...prev[p.id], quantity: Math.max(1, state.quantity + delta) }
+                                        }));
+                                    };
+
+                                    const handleWeight = (w: string) => {
+                                        setProductStates(prev => ({
+                                            ...prev,
+                                            [p.id]: { ...prev[p.id], weight: w }
+                                        }));
+                                    };
+
+                                    return (
+                                        <div key={p.id} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-xl transition-all duration-500 min-h-[420px] md:h-[580px] flex flex-col relative">
+                                            <Link href={`/product/${p.id}`} className="h-[200px] md:h-[40%] w-full overflow-hidden relative block">
+                                                <img src={p.imageUrl || "/assets/image 53.png"} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={p.name} />
+                                            </Link>
+                                            <div className="p-6 md:p-8 text-center flex-1 flex flex-col space-y-4">
+                                                <div className="space-y-1">
+                                                    <Link href={`/product/${p.id}`}>
+                                                        <h3 className="text-[28px] md:text-[32px] font-sans font-[700] text-[#3a2212] leading-tight truncate hover:text-[#bf8345] transition-colors">{p.name}</h3>
+                                                    </Link>
+                                                    <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">Authentic {currentCategory?.title}</p>
+                                                </div>
+                                                <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[220px] mx-auto hidden md:block line-clamp-2">{p.description}</p>
+
+                                                <div className="flex justify-center gap-2 pt-2 mt-auto">
+                                                    <div className="flex items-center bg-white rounded-lg border border-black/5 h-[44px] md:h-[48px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
+                                                        <button
+                                                            className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); handleQuantity(-1); }}
+                                                        >
+                                                            <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                                                        </button>
+                                                        <span className="px-3 md:px-4 text-[14px] md:text-[15px] font-[700] text-[#3a2212]">{state.quantity}</span>
+                                                        <button
+                                                            className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); handleQuantity(1); }}
+                                                        >
+                                                            <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                                                        </button>
+                                                    </div>
+                                                    <button
+                                                        className="flex-1 py-2.5 md:py-3 bg-[#5cb85c] rounded-[10px] text-white text-[12px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase active:scale-[0.98]"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            addToCart(p, state.quantity, state.weight);
+                                                        }}
+                                                    >
+                                                        ADD TO CART
+                                                    </button>
+                                                </div>
+
+                                                <div className="flex justify-center gap-1.5 md:gap-2">
+                                                    {['250g', '500g', '1KG'].map((w) => (
+                                                        <button
+                                                            key={w}
+                                                            onClick={(e) => { e.preventDefault(); handleWeight(w); }}
+                                                            className={`flex-1 py-1 md:py-1.5 rounded-[6px] md:rounded-[8px] text-[10px] md:text-[11px] font-[700] transition-all ${state.weight === w
+                                                                ? 'bg-[#3a2212] text-white shadow-sm'
+                                                                : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
+                                                                }`}
+                                                        >
+                                                            {w}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <button className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); }}>
+                                                <Heart className="w-4 h-4 md:w-5 md:h-5" />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </main>
                 </div>
 
-                {/* Process Section - "Four Steps. Zero Shortcuts." - Centered relative to 1440px container */}
+                {/* Process Section */}
                 <section className="py-24 border-t border-black/5">
                     <div className="text-center space-y-4 mb-20">
                         <span className="text-[14px] font-[700] text-[#bf8345] uppercase tracking-[0.3em]">HOW WE DO IT</span>
                         <h2 className="text-[64px] font-serif font-[700] text-[#3a2212] leading-tight">Four Steps.<br /><span className="text-[#bf8345] italic font-[400]">Zero Shortcuts.</span></h2>
-                        <p className="text-[16px] text-[#3a2212]/50 max-w-[500px] mx-auto font-[500] leading-relaxed">Every packet follows a sacred sequence — the samy one our founders and their bottled nostalgic small the heritage offer</p>
+                        <p className="text-[16px] text-[#3a2212]/50 max-w-[500px] mx-auto font-[500] leading-relaxed">Every packet follows a sacred sequence — the same one our founders used for generations.</p>
                     </div>
 
                     <div className="relative max-w-6xl mx-auto px-12">
-                        {/* Connector Line */}
                         <div className="absolute top-12 left-24 right-24 h-[1px] bg-[#3a2212]/10" />
-
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
                             {steps.map((step, i) => (
                                 <div key={i} className="flex flex-col items-center text-center space-y-6 group">
@@ -209,23 +322,6 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                             <li className="hover:text-white cursor-pointer transition-colors">Bulk Orders</li>
                             <li className="hover:text-white cursor-pointer transition-colors">Contact Us</li>
                         </ul>
-                    </div>
-                    <div className="space-y-8">
-                        <h4 className="text-[14px] font-[700] tracking-[0.2em] uppercase">SUPPORT</h4>
-                        <ul className="space-y-4 text-[14px] text-white/50 font-[300]">
-                            <li className="hover:text-white cursor-pointer transition-colors">Shipping Policy</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Refund Policy</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Terms of Service</li>
-                            <li className="hover:text-white cursor-pointer transition-colors">Privacy Policy</li>
-                        </ul>
-                    </div>
-                    <div className="space-y-8">
-                        <h4 className="text-[14px] font-[700] tracking-[0.2em] uppercase">NEWSLETTER</h4>
-                        <p className="text-[14px] text-white/50 font-[300]">Join our mailing list for updates and traditional recipes.</p>
-                        <div className="flex border-b border-white/20 pb-2">
-                            <input type="email" placeholder="Email Address" className="bg-transparent border-none outline-none text-[14px] flex-1 font-[300]" />
-                            <button className="text-[20px]">→</button>
-                        </div>
                     </div>
                 </div>
             </footer>

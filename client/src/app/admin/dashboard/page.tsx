@@ -56,6 +56,7 @@ export default function AdminDashboard() {
     const [showProductForm, setShowProductForm] = useState(false);
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [showBannerForm, setShowBannerForm] = useState(false);
+    const [editBannerId, setEditBannerId] = useState<number | null>(null);
     const [showSectionForm, setShowSectionForm] = useState(false);
     const [showAddProductToSection, setShowAddProductToSection] = useState<number | null>(null);
 
@@ -110,7 +111,19 @@ export default function AdminDashboard() {
         fetchBanners();
     };
 
-    const createBanner = async (e: React.FormEvent) => {
+    const editBanner = (banner: Banner) => {
+        setEditBannerId(banner.id);
+        setBannerForm({
+            title: banner.title || '',
+            subtitle: banner.subtitle || '',
+            ctaText: banner.ctaText || '',
+            ctaLink: banner.ctaLink || '',
+            displayOrder: banner.displayOrder?.toString() || ''
+        });
+        setShowBannerForm(true);
+    };
+
+    const handleBannerSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const fd = new FormData();
         fd.append('title', bannerForm.title);
@@ -119,8 +132,13 @@ export default function AdminDashboard() {
         fd.append('ctaLink', bannerForm.ctaLink);
         if (bannerForm.displayOrder) fd.append('displayOrder', bannerForm.displayOrder);
         if (bannerImage) fd.append('image', bannerImage);
-        await fetch(`${API_URL}/cms/banners`, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: fd });
+
+        const url = editBannerId ? `${API_URL}/cms/banners/${editBannerId}` : `${API_URL}/cms/banners`;
+        const method = editBannerId ? 'PUT' : 'POST';
+
+        await fetch(url, { method, headers: { Authorization: `Bearer ${token}` }, body: fd });
         setShowBannerForm(false);
+        setEditBannerId(null);
         setBannerForm({ title: '', subtitle: '', ctaText: '', ctaLink: '', displayOrder: '' });
         setBannerImage(null);
         fetchBanners();
@@ -221,8 +239,8 @@ export default function AdminDashboard() {
             {/* Banner Form */}
             {showBannerForm && (
                 <div className="bg-white rounded-[24px] p-8 border border-slate-100 shadow-lg">
-                    <h2 className="text-xl font-bold mb-6">Add New Banner</h2>
-                    <form onSubmit={createBanner} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h2 className="text-xl font-bold mb-6">{editBannerId ? 'Edit Banner' : 'Add New Banner'}</h2>
+                    <form onSubmit={handleBannerSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input placeholder="Title" value={bannerForm.title} onChange={e => setBannerForm({ ...bannerForm, title: e.target.value })}
                             className="px-4 py-3 border border-slate-200 rounded-xl text-sm" />
                         <input placeholder="Subtitle" value={bannerForm.subtitle} onChange={e => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
@@ -236,8 +254,8 @@ export default function AdminDashboard() {
                         <input type="file" accept="image/*" onChange={e => setBannerImage(e.target.files?.[0] || null)}
                             className="px-4 py-3 border border-slate-200 rounded-xl text-sm" />
                         <div className="md:col-span-2 flex gap-4">
-                            <button type="submit" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold">Create Banner</button>
-                            <button type="button" onClick={() => setShowBannerForm(false)} className="px-8 py-3 border border-slate-200 rounded-xl font-bold text-slate-500">Cancel</button>
+                            <button type="submit" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold">{editBannerId ? 'Update Banner' : 'Create Banner'}</button>
+                            <button type="button" onClick={() => { setShowBannerForm(false); setEditBannerId(null); setBannerForm({ title: '', subtitle: '', ctaText: '', ctaLink: '', displayOrder: '' }); }} className="px-8 py-3 border border-slate-200 rounded-xl font-bold text-slate-500">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -364,6 +382,7 @@ export default function AdminDashboard() {
                                     </td>
                                     <td className="px-8 py-5 text-sm text-slate-500">{banner.displayOrder ?? '-'}</td>
                                     <td className="px-8 py-5 text-right text-sm font-bold space-x-4">
+                                        <button onClick={() => editBanner(banner)} className="text-green-600 hover:text-green-800 transition-colors">Edit</button>
                                         <button onClick={() => toggleBanner(banner.id)} className="text-slate-400 hover:text-green-600 transition-colors">
                                             {banner.isActive ? 'Deactivate' : 'Activate'}
                                         </button>

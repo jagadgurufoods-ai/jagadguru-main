@@ -183,6 +183,18 @@ export default function ProductForm({ onClose, onSuccess }: ProductFormProps) {
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Grandma Says (Heritage Quote)</label>
+                            <textarea
+                                name="grandmasSays"
+                                value={formData.grandmasSays}
+                                onChange={handleChange}
+                                rows={2}
+                                placeholder="Ancient wisdom about this recipe..."
+                                className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900 italic"
+                            />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Product Image</label>
                             <div className="relative group">
                                 <input

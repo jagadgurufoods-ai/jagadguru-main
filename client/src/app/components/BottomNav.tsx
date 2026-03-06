@@ -3,13 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { MoreHorizontal, Search, LayoutGrid, ShoppingCart, User } from 'lucide-react';
+import { Menu, Search, LayoutGrid, ShoppingCart, User } from 'lucide-react';
 
 export default function BottomNav() {
     const pathname = usePathname();
 
     const navItems = [
-        { name: 'MORE', icon: MoreHorizontal, href: '#' },
+        { name: 'MENU', icon: Menu, href: '#' },
         { name: 'SEARCH', icon: Search, href: '/search' },
         { name: 'SHOP', icon: LayoutGrid, href: '/' },
         { name: 'CART', icon: ShoppingCart, href: '/cart' },
