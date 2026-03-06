@@ -52,8 +52,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const fetchCart = useCallback(async () => {
         if (!isLoggedIn || !token) {
             // Load from localStorage
-            const saved = localStorage.getItem('jgf_cart');
-            if (saved) setItems(JSON.parse(saved));
+            try {
+                const saved = localStorage.getItem('jgf_cart');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    setItems(Array.isArray(parsed) ? parsed : []);
+                } else {
+                    setItems([]);
+                }
+            } catch (err) {
+                console.error('Failed to parse cart from local storage:', err);
+                setItems([]);
+            }
             return;
         }
         setLoading(true);

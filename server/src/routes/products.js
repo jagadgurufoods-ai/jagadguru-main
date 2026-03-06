@@ -30,6 +30,25 @@ router.get('/', async (req, res) => {
     }
 });
 
+// Get product by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const product = await prisma.product.findUnique({
+            where: { id: parseInt(id) },
+            include: { category: true }
+        });
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found' });
+        }
+
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Create product (Admin)
 router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, res) => {
     const {

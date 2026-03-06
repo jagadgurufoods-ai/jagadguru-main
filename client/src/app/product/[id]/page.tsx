@@ -126,26 +126,21 @@ export default function ProductDetail() {
             <div className="max-w-[1440px] mx-auto flex">
                 <main className="flex-1 max-w-7xl mx-auto">
                     {/* Top Section: Hero + Product Info */}
-                    <div className="pt-12 lg:pt-24 pb-12 lg:pb-20 px-6 sm:px-12 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
+                    <div className="pt-8 lg:pt-24 pb-12 lg:pb-20 px-4 sm:px-12 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                         <div className="lg:col-span-5">
                             <div className="relative group">
-                                <div className="aspect-square rounded-[24px] overflow-hidden bg-white custom-shadow-lg border border-black/5 transform transition-all duration-700">
+                                <div className="aspect-square rounded-[32px] md:rounded-[24px] overflow-hidden bg-white shadow-[0_20px_50px_-15px_rgba(191,131,69,0.15)] border border-black/5 transform transition-all duration-700">
                                     <img
                                         src={product.imageUrl || "/assets/amla_pickle_jar_premium.png"}
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                <div className="absolute -bottom-10 left-0 right-0 flex justify-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-[#bf8345]" />
-                                    <div className="w-2 h-2 rounded-full bg-black/10" />
-                                    <div className="w-2 h-2 rounded-full bg-black/10" />
-                                </div>
                             </div>
                         </div>
 
-                        <div className="lg:col-span-7 space-y-10 pl-4">
-                            <nav className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] sm:text-[12px] font-[800] text-black/40 uppercase tracking-[0.2em] sm:tracking-[0.3em]">
+                        <div className="lg:col-span-7 space-y-8 lg:space-y-10 lg:pl-4">
+                            <nav className="flex flex-wrap items-center gap-2 sm:gap-3 text-[10px] font-[800] text-black/40 uppercase tracking-[0.2em]">
                                 <Link href="/" className="hover:text-black">Home</Link>
                                 <span className="text-[10px] opacity-20">/</span>
                                 <span className="hover:text-black">{product.category?.title || 'Pickles'}</span>
@@ -153,15 +148,15 @@ export default function ProductDetail() {
                                 <span className="text-black/90 truncate max-w-[150px] sm:max-w-none">{product.name}</span>
                             </nav>
 
-                            <div className="space-y-4 sm:space-y-6">
-                                <h1 className="text-[36px] sm:text-[52px] lg:text-[64px] font-serif font-[400] text-[#3a2212] leading-[1.1] tracking-tight">{product.name}</h1>
+                            <div className="space-y-4">
+                                <h1 className="text-[40px] md:text-[52px] lg:text-[64px] font-serif font-[400] text-[#3a2212] leading-[1] tracking-tight">{product.name}</h1>
                                 <div className="flex items-center gap-4">
                                     <div className="flex items-center gap-1">
                                         {[1, 2, 3, 4, 5].map((i) => (
-                                            <Star key={i} className={`w-3.5 h-3.5 ${i <= 4 ? 'fill-[#bf8345] text-[#bf8345]' : 'fill-black/5 text-black/5'}`} />
+                                            <Star key={i} className={`w-3 h-3 md:w-3.5 md:h-3.5 ${i <= 4 ? 'fill-[#bf8345] text-[#bf8345]' : 'fill-black/5 text-black/5'}`} />
                                         ))}
                                     </div>
-                                    <span className="text-[12px] font-[800] text-black/30 uppercase tracking-[0.2em] pt-0.5 whitespace-nowrap">128 REVIEWS</span>
+                                    <span className="text-[10px] md:text-[12px] font-[800] text-black/30 uppercase tracking-widest pt-0.5 whitespace-nowrap">128 REVIEWS</span>
                                 </div>
                             </div>
 

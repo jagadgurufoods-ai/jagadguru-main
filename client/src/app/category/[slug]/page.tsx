@@ -39,9 +39,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     return (
         <div className="min-h-screen bg-[#fcf9f4] font-sans text-[#3a2212]">
             <div className="max-w-[1440px] mx-auto">
-                <div className="flex">
-                    {/* Left Sidebar */}
-                    <aside className="w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20">
+                <div className="flex flex-col lg:flex-row">
+                    {/* Left Sidebar - Hidden on mobile, shown on desktop */}
+                    <aside className="hidden lg:block w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20 shrink-0">
                         <div>
                             <h2 className="text-[20px] font-serif font-[700] mb-8">Categories</h2>
                             <div className="space-y-6">
@@ -104,45 +104,53 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </div>
                     </aside>
 
+                    {/* Mobile Filter Button */}
+                    <div className="lg:hidden px-6 pt-8 flex items-center justify-between">
+                        <h1 className="text-[24px] font-serif font-[700]">Our Products</h1>
+                        <button className="flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-black/5 text-[14px] font-[700]">
+                            <Filter className="w-4 h-4" /> Filters
+                        </button>
+                    </div>
+
                     {/* Main Content Area */}
-                    <main className="flex-1 p-12 space-y-16">
+                    <main className="flex-1 p-6 md:p-12 space-y-8 md:space-y-16">
                         {/* Product Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                            {products.map((p, i) => (
-                                <div key={i} className="bg-white rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-xl transition-all duration-500 h-[580px] flex flex-col relative">
-                                    <div className="h-[40%] w-full overflow-hidden relative">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+                            {products.map((p) => (
+                                <Link key={p.id} href={`/product/${p.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-xl transition-all duration-500 min-h-[500px] md:h-[580px] flex flex-col relative">
+                                    <div className="h-[200px] md:h-[40%] w-full overflow-hidden relative">
                                         <img src="/assets/image 53.png" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                                     </div>
-                                    <div className="p-8 text-center flex-1 flex flex-col space-y-4">
+                                    <div className="p-6 md:p-8 text-center flex-1 flex flex-col space-y-4">
                                         <div>
-                                            <h3 className="text-[32px] font-sans font-[700] text-[#3a2212] leading-tight">{p.name}</h3>
-                                            <p className="text-[14px] text-black/40 font-[500] italic">{p.subtitle}</p>
+                                            <h3 className="text-[28px] md:text-[32px] font-sans font-[700] text-[#3a2212] leading-tight">{p.name}</h3>
+                                            <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">{p.subtitle}</p>
                                         </div>
-                                        <p className="text-[13px] text-black/50 leading-relaxed font-[500] max-w-[220px] mx-auto">{p.desc}</p>
+                                        <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[220px] mx-auto hidden md:block">{p.desc}</p>
 
-                                        <div className="flex justify-center gap-2 pt-2">
-                                            <div className="flex items-center bg-white rounded-lg border border-black/5 h-[48px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
-                                                <button className="w-7 h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30">
-                                                    <Minus className="w-3.5 h-3.5" />
+                                        <div className="flex justify-center gap-2 pt-2 mt-auto">
+                                            <div className="flex items-center bg-white rounded-lg border border-black/5 h-[44px] md:h-[48px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
+                                                <button className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30" onClick={(e) => { e.preventDefault(); /* handle minus */ }}>
+                                                    <Minus className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                                 </button>
-                                                <span className="px-4 text-[15px] font-[700] text-[#3a2212]">1</span>
-                                                <button className="w-7 h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30">
-                                                    <Plus className="w-3.5 h-3.5" />
+                                                <span className="px-3 md:px-4 text-[14px] md:text-[15px] font-[700] text-[#3a2212]">1</span>
+                                                <button className="w-6 h-6 md:w-7 md:h-7 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30" onClick={(e) => { e.preventDefault(); /* handle plus */ }}>
+                                                    <Plus className="w-3 h-3 md:w-3.5 md:h-3.5" />
                                                 </button>
                                             </div>
-                                            <button className="flex-1 py-3 bg-[#5cb85c] rounded-[10px] text-white text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors">ADD TO CART</button>
+                                            <button className="flex-1 py-2.5 md:py-3 bg-[#5cb85c] rounded-[10px] text-white text-[12px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase" onClick={(e) => { e.preventDefault(); /* handle add to cart */ }}>ADD TO CART</button>
                                         </div>
 
-                                        <div className="flex justify-center gap-2">
-                                            <button className="flex-1 py-1.5 border border-dashed border-black/10 rounded-[8px] text-[11px] font-[700] text-black/30">800/1kg</button>
-                                            <button className="flex-1 py-1.5 border border-dashed border-black/10 rounded-[8px] text-[11px] font-[700] text-black/30">800/1kg</button>
-                                            <button className="flex-1 py-1.5 bg-[#5cb85c] rounded-[8px] text-white text-[11px] font-[700] shadow-sm">800/1kg</button>
+                                        <div className="flex justify-center gap-1.5 md:gap-2">
+                                            <button className="flex-1 py-1 md:py-1.5 border border-dashed border-black/10 rounded-[6px] md:rounded-[8px] text-[10px] md:text-[11px] font-[700] text-black/30">800/1kg</button>
+                                            <button className="flex-1 py-1 md:py-1.5 border border-dashed border-black/10 rounded-[8px] text-[10px] md:text-[11px] font-[700] text-black/30">800/1kg</button>
+                                            <button className="flex-1 py-1 md:py-1.5 bg-[#5cb85c] rounded-[6px] md:rounded-[8px] text-white text-[10px] md:text-[11px] font-[700] shadow-sm">800/1kg</button>
                                         </div>
                                     </div>
-                                    <button className="absolute top-6 right-6 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5">
-                                        <Heart className="w-5 h-5" />
+                                    <button className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); /* handle heart */ }}>
+                                        <Heart className="w-4 h-4 md:w-5 md:h-5" />
                                     </button>
-                                </div>
+                                </Link>
                             ))}
                         </div>
                     </main>

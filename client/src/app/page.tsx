@@ -104,7 +104,7 @@ export default function Home() {
     const borderColor = isGreen ? 'border-[#15a31a]/40' : 'border-[#bf8345]/40';
 
     return (
-      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[500px] md:h-[580px]">
+      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[580px]">
         <div className="h-[200px] md:h-[40%] w-full overflow-hidden">
           <img src={product.imageUrl || '/assets/image 53.png'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         </div>
@@ -235,26 +235,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mobile Categories Section - Replaces Banner */}
-      <section className="lg:hidden w-full px-4 pt-8 pb-4 bg-[#fdfaf5]">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="h-[1px] flex-1 bg-[#3a2212]/10"></div>
-          <h2 className="text-[18px] font-[800] text-[#705844] tracking-[0.2em] uppercase">Shop By Category</h2>
-          <div className="h-[1px] flex-1 bg-[#3a2212]/10"></div>
+      {/* Mobile Categories Section - Redesigned for Premium Look */}
+      <section className="lg:hidden w-full bg-[#fdfaf5]">
+        <div className="px-6 pt-10 pb-4">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="h-[1.5px] w-8 bg-[#bf8345]"></div>
+            <h2 className="text-[20px] font-[900] text-[#3a2212] tracking-[0.05em] uppercase font-serif italic">Shop By Category</h2>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-4">
+
+        <div className="flex overflow-x-auto gap-4 px-6 pb-8 no-scrollbar scroll-smooth">
           {categories.map((cat, idx) => (
             <Link
               key={idx}
               href={cat.link}
-              className="bg-white rounded-[24px] p-4 flex flex-col items-center gap-4 shadow-sm border border-black/5 hover:scale-[1.02] transition-transform active:scale-95"
+              className="flex-shrink-0 w-[140px] group transition-all"
             >
-              <div className="w-20 h-20 rounded-full bg-[#bf8345]/5 flex items-center justify-center p-3">
-                <img src={cat.icon} alt={cat.name} className="w-full h-full object-contain" />
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-[120px] h-[120px] rounded-[40px] bg-white flex items-center justify-center p-6 shadow-[0_10px_30px_-10px_rgba(191,131,69,0.2)] border border-[#bf8345]/5 group-active:scale-95 transition-all">
+                  <img src={cat.icon} alt={cat.name} className="w-full h-full object-contain filter drop-shadow-md" />
+                </div>
+                <div className="flex flex-col items-center gap-1">
+                  <span className="text-[13px] font-[800] text-[#3a2212] text-center tracking-tight leading-tight uppercase">
+                    {cat.name.split('\n')[0]}
+                  </span>
+                  {cat.name.includes('\n') && (
+                    <span className="text-[11px] font-[600] text-[#bf8345]/60 text-center tracking-widest leading-none uppercase">
+                      {cat.name.split('\n')[1]}
+                    </span>
+                  )}
+                </div>
               </div>
-              <span className="text-[12px] font-[700] text-[#705844] text-center tracking-wide leading-tight px-2">
-                {cat.name.replace('\n', ' ')}
-              </span>
             </Link>
           ))}
         </div>
