@@ -235,41 +235,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mobile Categories Section - Redesigned for Premium Look */}
-      <section className="lg:hidden w-full bg-[#fdfaf5]">
-        <div className="px-6 pt-10 pb-4">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="h-[1.5px] w-8 bg-[#bf8345]"></div>
-            <h2 className="text-[20px] font-[900] text-[#3a2212] tracking-[0.05em] uppercase font-serif italic">Shop By Category</h2>
+      {/* Mobile Hero & Categories Overlap Section */}
+      <section className="lg:hidden relative w-full bg-[#fdfaf5]">
+        {/* Banner Area */}
+        <div className="relative h-[65vh] min-h-[500px] w-full">
+          <img
+            src="/assets/image 65.png"
+            alt="Jagadguru Heritage"
+            className="w-full h-full object-cover brightness-[0.9]"
+          />
+          {/* Banner Content Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
+            <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">
+              Authentic Delights,<br />
+              <span className="italic font-[400]">A Tangy Heritage</span>
+            </h1>
+            <button className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
+              Explore
+            </button>
+
+            {/* Carousel Dots */}
+            <div className="flex gap-2 mt-8">
+              <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+              <div className="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+            </div>
           </div>
         </div>
 
-        <div className="flex overflow-x-auto gap-4 px-6 pb-8 no-scrollbar scroll-smooth">
-          {categories.map((cat, idx) => (
-            <Link
-              key={idx}
-              href={cat.link}
-              className="flex-shrink-0 w-[140px] group transition-all"
-            >
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-[120px] h-[120px] rounded-[40px] bg-white flex items-center justify-center p-6 shadow-[0_10px_30px_-10px_rgba(191,131,69,0.2)] border border-[#bf8345]/5 group-active:scale-95 transition-all">
-                  <img src={cat.icon} alt={cat.name} className="w-full h-full object-contain filter drop-shadow-md" />
-                </div>
-                <div className="flex flex-col items-center gap-1">
-                  <span className="text-[13px] font-[800] text-[#3a2212] text-center tracking-tight leading-tight uppercase">
-                    {cat.name.split('\n')[0]}
+        {/* Floating Category Card - Overlapping the Banner */}
+        <div className="px-6 -mt-32 relative z-10 pb-12">
+          <div className="bg-white rounded-[24px] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.15)] border border-black/5 p-8">
+            <div className="grid grid-cols-3 gap-y-10 gap-x-4">
+              {categories.map((cat, idx) => (
+                <Link
+                  key={idx}
+                  href={cat.link}
+                  className="flex flex-col items-center gap-3 group"
+                >
+                  <div className="w-[60px] h-[60px] flex items-center justify-center transition-transform group-active:scale-90">
+                    <img
+                      src={cat.icon}
+                      alt={cat.name}
+                      className="w-full h-full object-contain filter drop-shadow-sm"
+                    />
+                  </div>
+                  <span className="text-[11px] font-[800] text-[#3a2212] text-center tracking-tighter leading-tight uppercase opacity-80">
+                    {cat.name.replace('\n', ' ')}
                   </span>
-                  {cat.name.includes('\n') && (
-                    <span className="text-[11px] font-[600] text-[#bf8345]/60 text-center tracking-widest leading-none uppercase">
-                      {cat.name.split('\n')[1]}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
+
+      {/* Mobile Top Picks Header (Optional but matches the mockup vibe) */}
+      <div className="lg:hidden px-6 pt-4 pb-0">
+        <h2 className="text-[32px] font-serif font-[700] text-[#3a2212] tracking-tight">top picks</h2>
+      </div>
 
       {/* Main Content Sections */}
       <div className="max-w-[1440px] mx-auto w-full px-4 md:px-6 py-12 md:py-20 space-y-16 md:space-y-24">

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import './globals.css';
 import { Providers } from './context/Providers';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 
 export const metadata = {
   title: 'Jagadguru Foods | Authentic South Indian Heritage',
@@ -20,12 +21,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet" />
       </head>
-      <body className="bg-[#fdfaf5] text-[#3a2212] font-sans antialiased overflow-x-hidden">
+      <body className="bg-[#fdfaf5] text-[#3a2212] font-sans antialiased overflow-x-hidden pb-24 lg:pb-0">
         <Providers>
           <Navbar />
           <main>
             {children}
           </main>
+          <BottomNav />
         </Providers>
       </body>
     </html>
