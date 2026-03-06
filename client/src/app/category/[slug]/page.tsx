@@ -252,24 +252,24 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ 250g</span>
                                                 </div>
 
-                                                <div className="flex justify-center gap-2 pt-1 mt-auto h-[40px] md:h-[48px] flex-shrink-0">
-                                                    <div className="flex items-center bg-white rounded-lg border border-black/5 h-[36px] md:h-[40px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
+                                                <div className="flex justify-center gap-2 mt-auto h-[42px] md:h-[50px] flex-shrink-0">
+                                                    <div className="flex items-center bg-white rounded-lg border border-black/5 h-full px-1.5 group-hover:border-[#1ea731]/20 transition-colors">
                                                         <button
-                                                            className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
                                                             onClick={(e) => { e.preventDefault(); handleQuantity(-1); }}
                                                         >
-                                                            <Minus className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                                                            <Minus className="w-3 h-3 md:w-4 md:h-4" />
                                                         </button>
-                                                        <span className="px-2 md:px-3 text-[12px] md:text-[13px] font-[700] text-[#3a2212]">{state.quantity}</span>
+                                                        <span className="px-2 md:px-3 text-[13px] md:text-[15px] font-[700] text-[#3a2212] min-w-[24px] text-center">{state.quantity}</span>
                                                         <button
-                                                            className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
                                                             onClick={(e) => { e.preventDefault(); handleQuantity(1); }}
                                                         >
-                                                            <Plus className="w-2.5 h-2.5 md:w-3 md:h-3" />
+                                                            <Plus className="w-3 h-3 md:w-4 md:h-4" />
                                                         </button>
                                                     </div>
                                                     <button
-                                                        className="flex-1 py-1.5 md:py-2 bg-[#5cb85c] rounded-[8px] text-white text-[10px] md:text-[11px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase active:scale-[0.98]"
+                                                        className="flex-1 h-full bg-[#5cb85c] rounded-[10px] text-white text-[11px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase active:scale-[0.98] flex items-center justify-center"
                                                         onClick={(e) => {
                                                             e.preventDefault();
                                                             const pState = productStates[p.id] || { quantity: 1, weight: '250g' };
@@ -289,12 +289,12 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     </button>
                                                 </div>
 
-                                                <div className="flex justify-center gap-1 md:gap-1.5 mt-2 h-[28px] md:h-[32px] flex-shrink-0">
+                                                <div className="flex justify-center gap-1.5 md:gap-2 mt-3 h-[32px] md:h-[36px] flex-shrink-0">
                                                     {['250g', '500g', '1KG'].map((w) => (
                                                         <button
                                                             key={w}
                                                             onClick={(e) => { e.preventDefault(); handleWeight(w); }}
-                                                            className={`flex-1 py-1 rounded-[4px] md:rounded-[6px] text-[9px] md:text-[10px] font-[700] transition-all ${state.weight === w
+                                                            className={`flex-1 flex items-center justify-center rounded-[6px] md:rounded-[8px] text-[9px] md:text-[11px] px-1 font-[700] transition-all whitespace-nowrap ${state.weight === w
                                                                 ? 'bg-[#3a2212] text-white shadow-sm'
                                                                 : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
                                                                 }`}
@@ -304,7 +304,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     ))}
                                                 </div>
                                             </div>
-                                            <button className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); }}>
+                                            <button className="absolute top-3 right-3 md:top-4 md:right-4 w-8 h-8 md:w-9 md:h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); }}>
                                                 <Heart className="w-4 h-4 md:w-5 md:h-5" />
                                             </button>
                                         </div>

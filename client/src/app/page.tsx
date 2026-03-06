@@ -132,33 +132,33 @@ export default function Home() {
               {product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}
             </p>
           </div>
-          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3">
+          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 flex-shrink-0 mb-3">
             <button
               onClick={(e) => handleWeightClick(e, '250g')}
-              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{Number(product.price).toFixed(0)}/250g</button>
             <button
               onClick={(e) => handleWeightClick(e, '500g')}
-              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
             <button
               onClick={(e) => handleWeightClick(e, '1KG')}
-              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center pt-3">
-              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-[40px] md:h-[48px] px-2 md:px-3 gap-1">
+            <div className="mt-auto flex items-center justify-center h-[42px] md:h-[50px] flex-shrink-0">
+              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-full px-2 md:px-3 gap-1 w-fit">
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, -1)}
-                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[16px] md:text-[20px] font-[700]"
+                  className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[22px] font-[700] leading-none"
                 >
                   −
                 </button>
-                <span className="px-3 md:px-5 text-[14px] md:text-[16px] font-[800] text-[#3a2212] min-w-[25px] md:min-w-[32px] text-center">{cartQuantities[product.id]}</span>
+                <span className="px-3 md:px-5 text-[15px] md:text-[18px] font-[800] text-[#3a2212] min-w-[30px] md:min-w-[40px] text-center">{cartQuantities[product.id]}</span>
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, 1)}
-                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[16px] md:text-[20px] font-[700]"
+                  className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[22px] font-[700] leading-none"
                 >
                   +
                 </button>
@@ -167,7 +167,7 @@ export default function Home() {
           ) : (
             <button
               onClick={(e) => handleAddToCart(e, product)}
-              className={`w-full mt-auto py-3 md:py-3.5 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+              className={`w-full mt-auto h-[42px] md:h-[50px] flex items-center justify-center rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
               style={{ backgroundColor: accentColor }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
