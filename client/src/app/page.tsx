@@ -119,7 +119,7 @@ export default function Home() {
         </div>
         <div className="px-6 md:px-8 pb-6 md:pb-8 pt-6 md:pt-8 text-center space-y-4 flex-1 flex flex-col">
           <div>
-            <h3 className="text-[28px] md:text-[36px] font-sans font-[700] text-[#000] leading-tight">{product.name}</h3>
+            <h3 className="text-[22px] md:text-[28px] font-sans font-[700] text-[#000] leading-tight">{product.name}</h3>
             <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">{product.description || 'Premium quality product'}</p>
           </div>
           <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>

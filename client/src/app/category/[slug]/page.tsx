@@ -234,7 +234,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                             <div className="p-6 md:p-8 text-center flex-1 flex flex-col space-y-4">
                                                 <div className="space-y-1">
                                                     <Link href={`/product/${p.id}`}>
-                                                        <h3 className="text-[28px] md:text-[32px] font-sans font-[700] text-[#3a2212] leading-tight truncate hover:text-[#bf8345] transition-colors">{p.name}</h3>
+                                                        <h3 className="text-[22px] md:text-[28px] font-sans font-[700] text-[#3a2212] leading-tight truncate hover:text-[#bf8345] transition-colors">{p.name}</h3>
                                                     </Link>
                                                     <p className="text-[12px] md:text-[14px] text-black/40 font-[500] italic">Authentic {currentCategory?.title}</p>
                                                 </div>
