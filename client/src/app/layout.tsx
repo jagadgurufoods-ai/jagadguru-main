@@ -3,6 +3,7 @@ import './globals.css';
 import { Providers } from './context/Providers';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
+import GlobalUIElements from './GlobalUIElements';
 
 export const metadata = {
   title: 'Jagadguru Foods | Authentic South Indian Heritage',
@@ -23,6 +24,7 @@ export default function RootLayout({
       </head>
       <body className="bg-[#fdfaf5] text-[#3a2212] font-sans antialiased overflow-x-hidden pb-24 lg:pb-0">
         <Providers>
+          <GlobalUIElements />
           <Navbar />
           <main>
             {children}
