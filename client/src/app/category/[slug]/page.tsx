@@ -240,6 +240,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                 </div>
                                                 <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[220px] mx-auto hidden md:block line-clamp-2">{p.description}</p>
 
+                                                <div className="pt-2">
+                                                    <span className="text-[20px] md:text-[24px] font-[800] text-[#3a2212]">₹{Number(p.price).toFixed(0)}</span>
+                                                    <span className="text-[12px] md:text-[14px] text-black/30 font-[600] ml-1">/ 250g</span>
+                                                </div>
+
                                                 <div className="flex justify-center gap-2 pt-2 mt-auto">
                                                     <div className="flex items-center bg-white rounded-lg border border-black/5 h-[44px] md:h-[48px] px-1 group-hover:border-[#1ea731]/20 transition-colors">
                                                         <button

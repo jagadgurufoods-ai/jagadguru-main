@@ -30,6 +30,7 @@ export default function Home() {
   const [cartQuantities, setCartQuantities] = useState<Record<number, number>>({});
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const [selectedWeights, setSelectedWeights] = useState<Record<number, string>>({});
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/cms/home`)
@@ -64,7 +65,7 @@ export default function Home() {
       price: Number(product.price),
       imageUrl: product.imageUrl,
       stock: product.stock
-    });
+    }, 1, selectedWeights[product.id] || '250g');
     setCartQuantities(prev => ({ ...prev, [product.id]: (prev[product.id] || 0) + 1 }));
     setToastProduct(product);
     setShowToast(true);
@@ -91,7 +92,7 @@ export default function Home() {
       price: Number(product.price),
       imageUrl: product.imageUrl,
       stock: product.stock
-    }, newQty);
+    }, newQty, selectedWeights[product.id] || '250g');
   };
 
   // Render a product card (same exact UI as before)
@@ -102,6 +103,14 @@ export default function Home() {
     const shadowColor = isGreen ? 'shadow-green-200' : 'shadow-orange-100';
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
     const borderColor = isGreen ? 'border-[#15a31a]/40' : 'border-[#bf8345]/40';
+
+    const currentWeight = selectedWeights[product.id] || '250g';
+
+    const handleWeightClick = (e: React.MouseEvent, w: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setSelectedWeights(prev => ({ ...prev, [product.id]: w }));
+    };
 
     return (
       <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[580px]">
@@ -115,11 +124,17 @@ export default function Home() {
           </div>
           <p className="text-[12px] md:text-[13px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:block">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
           <div className="flex justify-center gap-2 pt-2 md:pt-4">
-            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{Number(product.price).toFixed(0)}/250g</button>
-            <button className={`flex-1 py-2 md:py-3 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-[#3a2212]/70 bg-black/[0.02]`}>₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
             <button
-              className={`flex-1 py-2 md:py-3 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] text-white ${shadowColor}`}
-              style={{ backgroundColor: accentColor }}
+              onClick={(e) => handleWeightClick(e, '250g')}
+              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+            >₹{Number(product.price).toFixed(0)}/250g</button>
+            <button
+              onClick={(e) => handleWeightClick(e, '500g')}
+              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+            >₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
+            <button
+              onClick={(e) => handleWeightClick(e, '1KG')}
+              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
