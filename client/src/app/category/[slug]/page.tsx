@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2, X } from 'lucide-react';
+import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2, X, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 
@@ -17,6 +17,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const [loading, setLoading] = useState(true);
 
     const [productStates, setProductStates] = useState<{ [key: number]: { quantity: number, weight: string } }>({});
+    const [showToast, setShowToast] = useState(false);
+    const [toastProduct, setToastProduct] = useState<any>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -258,7 +260,17 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                         className="flex-1 py-2.5 md:py-3 bg-[#5cb85c] rounded-[10px] text-white text-[12px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase active:scale-[0.98]"
                                                         onClick={(e) => {
                                                             e.preventDefault();
-                                                            addToCart(p, state.quantity, state.weight);
+                                                            const pState = productStates[p.id] || { quantity: 1, weight: '250g' };
+                                                            addToCart({
+                                                                id: p.id,
+                                                                name: p.name,
+                                                                price: Number(p.price),
+                                                                imageUrl: p.imageUrl,
+                                                                stock: p.stock
+                                                            }, pState.quantity, pState.weight);
+                                                            setToastProduct(p);
+                                                            setShowToast(true);
+                                                            setTimeout(() => setShowToast(false), 3000);
                                                         }}
                                                     >
                                                         ADD TO CART
@@ -345,6 +357,19 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                     </div>
                 </div>
             </footer>
+
+            {/* Toast Notification */}
+            <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[250] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+                <div className="bg-[#15a31a] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[300px]">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                        <Check className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-[14px] font-[800]">Added to Cart!</p>
+                        <p className="text-[12px] opacity-80">{toastProduct?.name}</p>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
