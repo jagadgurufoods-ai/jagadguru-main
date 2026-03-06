@@ -113,28 +113,37 @@ export default function Home() {
     };
 
     return (
-      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[480px]">
-        <div className="h-[180px] md:h-[200px] w-full overflow-hidden">
-          <img src={product.imageUrl || '/assets/image 53.png'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0">
+        <div className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative">
+          <img
+            src={product.imageUrl || '/assets/image 53.png'}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
+          />
         </div>
-        <div className="px-6 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center space-y-3 flex-1 flex flex-col">
-          <div>
-            <h3 className="text-[20px] md:text-[24px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">{product.name}</h3>
-            <p className="text-[11px] md:text-[13px] text-black/40 font-[500] italic line-clamp-1">{product.description || 'Premium quality product'}</p>
+        <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
+          <div className="h-[56px] md:h-[70px] flex flex-col justify-center flex-shrink-0">
+            <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">{product.name}</h3>
+            <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">{product.description || 'Premium quality product'}</p>
           </div>
-          <p className="text-[11px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:line-clamp-2">{product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}</p>
-          <div className="flex justify-center gap-2 pt-2 md:pt-4">
+          <div className="h-[36px] md:h-[45px] flex items-center justify-center flex-shrink-0 mb-2">
+            <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">
+              {product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}
+            </p>
+          </div>
+          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3">
             <button
               onClick={(e) => handleWeightClick(e, '250g')}
-              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{Number(product.price).toFixed(0)}/250g</button>
             <button
               onClick={(e) => handleWeightClick(e, '500g')}
-              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
             <button
               onClick={(e) => handleWeightClick(e, '1KG')}
-              className={`flex-1 py-2 md:py-3 border-[1.5px] rounded-[10px] md:rounded-[12px] text-[10px] md:text-[12px] font-[700] transition-all ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+              className={`py-1.5 md:py-2.5 border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
@@ -180,23 +189,30 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col min-h-[420px] md:h-[480px]">
-        <div className="h-[180px] md:h-[200px] w-full overflow-hidden">
-          <img src="/assets/image 53.png" alt="Magaya" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0">
+        <div className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative">
+          <img
+            src="/assets/image 53.png"
+            alt="Magaya"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
+          />
         </div>
-        <div className="px-6 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center space-y-3 flex-1 flex flex-col">
-          <div>
-            <h3 className="text-[20px] md:text-[24px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">Magaya</h3>
-            <p className="text-[11px] md:text-[13px] text-black/40 font-[500] italic line-clamp-1">Sun dried Mango pickle</p>
+        <div className="px-5 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center flex-1 flex flex-col overflow-hidden">
+          <div className="h-[56px] md:h-[70px] flex flex-col justify-center flex-shrink-0">
+            <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">Magaya</h3>
+            <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">Sun dried Mango pickle</p>
           </div>
-          <p className="text-[11px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] mx-auto hidden md:line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
-          <div className="flex justify-center gap-2 pt-1 md:pt-2">
-            <button className={`flex-1 py-2 md:py-2.5 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-2 md:py-2.5 border-[1.5px] border-dashed ${borderColor} rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`flex-1 py-2 md:py-2.5 rounded-[10px] md:rounded-[12px] text-[10px] md:text-[11px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
+          <div className="h-[36px] md:h-[45px] flex items-center justify-center flex-shrink-0 mb-2">
+            <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
+          </div>
+          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3">
+            <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
+            <button className={`py-1.5 md:py-2.5 rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
           </div>
           <button
-            className={`w-full mt-auto py-3.5 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+            className={`w-full mt-auto py-3 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
             style={{ backgroundColor: accentColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
