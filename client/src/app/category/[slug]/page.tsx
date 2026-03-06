@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2 } from 'lucide-react';
+import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
 
@@ -22,16 +22,23 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         const fetchData = async () => {
             setLoading(true);
             try {
+                console.log('Fetching from API:', API_URL);
                 const catRes = await fetch(`${API_URL}/categories`);
+                if (!catRes.ok) throw new Error(`Failed to fetch categories: ${catRes.status}`);
                 const catData = await catRes.json();
+                console.log('Categories received:', catData.length);
                 setCategories(catData);
 
-                const foundCat = catData.find((c: any) => c.slug === slug);
+                // Use case-insensitive matching for slug
+                const foundCat = catData.find((c: any) => c.slug.toLowerCase() === slug.toLowerCase());
+                console.log('Found Category:', foundCat?.title || 'None');
                 setCurrentCategory(foundCat);
 
                 if (foundCat) {
                     const prodRes = await fetch(`${API_URL}/products?categoryId=${foundCat.id}`);
+                    if (!prodRes.ok) throw new Error(`Failed to fetch products: ${prodRes.status}`);
                     const prodData = await prodRes.json();
+                    console.log('Products received for category:', prodData.length);
                     setProducts(prodData);
 
                     // Initialize product states
@@ -40,6 +47,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         return acc;
                     }, {});
                     setProductStates(initialStates);
+                } else {
+                    console.warn(`Category with slug "${slug}" not found in`, catData.map((c: any) => c.slug));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -178,12 +187,23 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </div>
 
                         {/* Product Grid */}
-                        {products.length === 0 ? (
+                        {!currentCategory ? (
+                            <div className="py-24 text-center space-y-6">
+                                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto border border-red-100">
+                                    <X className="w-10 h-10 text-red-300" />
+                                </div>
+                                <div className="space-y-2">
+                                    <h2 className="text-[24px] font-serif font-[700] text-[#3a2212]">Category Not Found</h2>
+                                    <p className="text-black/30 font-[500] max-w-sm mx-auto">The collection you are looking for doesn't exist or has been moved.</p>
+                                </div>
+                                <Link href="/" className="inline-block px-8 py-3 bg-[#bf8345] text-white rounded-xl font-bold uppercase tracking-widest text-[12px] shadow-lg shadow-orange-100">Browse All Categories</Link>
+                            </div>
+                        ) : products.length === 0 ? (
                             <div className="py-20 text-center space-y-4">
                                 <div className="w-16 h-16 bg-black/[0.03] rounded-full flex items-center justify-center mx-auto">
                                     <ShoppingCart className="w-8 h-8 text-black/10" />
                                 </div>
-                                <p className="text-black/30 font-[600] uppercase tracking-widest text-[13px]">No products available in this category yet</p>
+                                <p className="text-black/30 font-[600] uppercase tracking-widest text-[13px]">No products in {currentCategory.title} yet</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
