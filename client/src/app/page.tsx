@@ -113,26 +113,28 @@ export default function Home() {
     };
 
     return (
-      <Link key={product.id} href={`/product/${product.id}`} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0">
-        <div className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative">
+      <div key={product.id} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0 relative">
+        <Link href={`/product/${product.id}`} className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src={product.imageUrl || '/assets/image 53.png'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
-        </div>
+        </Link>
         <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
-          <div className="h-[56px] md:h-[70px] flex flex-col justify-center flex-shrink-0">
-            <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">{product.name}</h3>
-            <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">{product.description || 'Premium quality product'}</p>
-          </div>
-          <div className="h-[36px] md:h-[45px] flex items-center justify-center flex-shrink-0 mb-2">
-            <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">
-              {product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}
-            </p>
-          </div>
-          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 flex-shrink-0 mb-3">
+          <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
+            <div className="h-[56px] md:h-[70px] flex flex-col justify-center">
+              <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">{product.name}</h3>
+              <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">{product.description || 'Premium quality product'}</p>
+            </div>
+            <div className="h-[36px] md:h-[45px] flex items-center justify-center mb-2">
+              <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">
+                {product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}
+              </p>
+            </div>
+          </Link>
+          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 flex-shrink-0 mb-3 relative z-10">
             <button
               onClick={(e) => handleWeightClick(e, '250g')}
               className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
@@ -147,7 +149,7 @@ export default function Home() {
             >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
           </div>
           {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center h-[42px] md:h-[50px] flex-shrink-0">
+            <div className="mt-auto flex items-center justify-center h-[42px] md:h-[50px] flex-shrink-0 relative z-10">
               <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-full px-2 md:px-3 gap-1 w-fit">
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, -1)}
@@ -167,7 +169,7 @@ export default function Home() {
           ) : (
             <button
               onClick={(e) => handleAddToCart(e, product)}
-              className={`w-full mt-auto h-[42px] md:h-[50px] flex items-center justify-center rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+              className={`w-full mt-auto h-[42px] md:h-[50px] flex items-center justify-center rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor} relative z-10`}
               style={{ backgroundColor: accentColor }}
               onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
               onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
@@ -176,7 +178,7 @@ export default function Home() {
             </button>
           )}
         </div>
-      </Link>
+      </div>
     );
   };
 
@@ -189,30 +191,32 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <Link key={i} href="/product/1" className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0">
-        <div className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative">
+      <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0 relative">
+        <Link href="/product/1" className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src="/assets/image 53.png"
             alt="Magaya"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
-        </div>
+        </Link>
         <div className="px-5 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center flex-1 flex flex-col overflow-hidden">
-          <div className="h-[56px] md:h-[70px] flex flex-col justify-center flex-shrink-0">
-            <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1">Magaya</h3>
-            <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">Sun dried Mango pickle</p>
-          </div>
-          <div className="h-[36px] md:h-[45px] flex items-center justify-center flex-shrink-0 mb-2">
-            <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
-          </div>
-          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3">
+          <Link href="/product/1" className="flex flex-col flex-shrink-0">
+            <div className="h-[56px] md:h-[70px] flex flex-col justify-center">
+              <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">Magaya</h3>
+              <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">Sun dried Mango pickle</p>
+            </div>
+            <div className="h-[36px] md:h-[45px] flex items-center justify-center mb-2">
+              <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
+            </div>
+          </Link>
+          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3 relative z-10">
             <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
             <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
             <button className={`py-1.5 md:py-2.5 rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
           </div>
           <button
-            className={`w-full mt-auto py-3 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor}`}
+            className={`w-full mt-auto py-3 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor} relative z-10`}
             style={{ backgroundColor: accentColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
@@ -220,7 +224,7 @@ export default function Home() {
             ADD TO CART
           </button>
         </div>
-      </Link>
+      </div>
     );
   };
 
