@@ -321,10 +321,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Mobile Top Picks Header (Optional but matches the mockup vibe) */}
-      <div className="lg:hidden px-6 pt-4 pb-0">
-        <h2 className="text-[32px] font-serif font-[700] text-[#3a2212] tracking-tight">top picks</h2>
-      </div>
 
       {/* Main Content Sections */}
       <div className="max-w-[1440px] mx-auto w-full px-4 md:px-6 py-12 md:py-20 space-y-16 md:space-y-24">
