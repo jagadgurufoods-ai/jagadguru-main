@@ -167,7 +167,7 @@ export default function Home() {
     };
 
     return (
-      <div key={product.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[400px] md:h-[440px] w-full flex-shrink-0 relative">
+      <div key={product.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
         <button
           className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
           onClick={(e) => {
@@ -176,7 +176,7 @@ export default function Home() {
             toggleWishlist(product.id);
           }}
         >
-          <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+          <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-black/30 group-heart:text-red-400'}`} />
         </button>
         <Link href={`/product/${product.id}`} className="h-[140px] md:h-[160px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
@@ -195,68 +195,69 @@ export default function Home() {
         </Link>
         <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
           <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
-            <div className="h-[44px] md:h-[52px] flex flex-col justify-center">
-              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-1 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{product.name}</h3>
+            <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
+              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{product.name}</h3>
               <p className="text-[10px] md:text-[12px] text-black/50 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
                 {product.grandmasSays || product.description || 'Authentic heritage flavors passed down through generations'}
               </p>
             </div>
           </Link>
-          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 flex-shrink-0 my-3 relative z-30">
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 flex-shrink-0 mt-2 mb-2 relative z-30">
             {renderVariantButton('250g')}
             {renderVariantButton('500g')}
             {renderVariantButton('1KG')}
           </div>
-          {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center h-[38px] md:h-[46px] flex-shrink-0 relative z-30" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between bg-white rounded-xl border-2 border-[#15a31a] h-full px-1 gap-1 w-full max-w-[120px] md:max-w-[150px] mx-auto">
-                <button
-                  onClick={(e) => handleCardQuantityChange(e, product, -1)}
-                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] font-[700]"
-                >
-                  <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
-                </button>
-                <span className="text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{cartQuantities[product.id]}</span>
-                <button
-                  disabled={isOutOfStock}
-                  onClick={(e) => handleCardQuantityChange(e, product, 1)}
-                  className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full transition-colors text-[#15a31a] font-[700] ${isOutOfStock ? 'opacity-30' : 'hover:bg-[#15a31a]/10'}`}
-                >
-                  <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
-                </button>
+          <div className="flex-1 flex flex-col justify-end">
+            {cartQuantities[product.id] ? (
+              <div className="flex items-center justify-center h-[38px] md:h-[46px] flex-shrink-0 relative z-30" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center justify-between bg-white rounded-xl border-2 border-[#15a31a] h-full px-1 gap-1 w-full max-w-[120px] md:max-w-[150px] mx-auto">
+                  <button
+                    onClick={(e) => handleCardQuantityChange(e, product, -1)}
+                    className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] font-[700]"
+                  >
+                    <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
+                  </button>
+                  <span className="text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{cartQuantities[product.id]}</span>
+                  <button
+                    disabled={isOutOfStock}
+                    onClick={(e) => handleCardQuantityChange(e, product, 1)}
+                    className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full transition-colors text-[#15a31a] font-[700] ${isOutOfStock ? 'opacity-30' : 'hover:bg-[#15a31a]/10'}`}
+                  >
+                    <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
+                  </button>
+                </div>
               </div>
-            </div>
-          ) : (
-            <button
-              onClick={(e) => handleAddToCart(e, product)}
-              disabled={isOutOfStock}
-              className={`w-full mt-auto h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} relative z-30 active:scale-[0.98] ${isOutOfStock ? 'grayscale opacity-50 cursor-not-allowed shadow-none' : ''}`}
-              style={{ backgroundColor: isOutOfStock ? '#ccc' : accentColor }}
-              onMouseEnter={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = hoverColor)}
-              onMouseLeave={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = accentColor)}
-            >
-              {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
-            </button>
-          )}
+            ) : (
+              <button
+                onClick={(e) => handleAddToCart(e, product)}
+                disabled={isOutOfStock}
+                className={`w-full h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} relative z-30 active:scale-[0.98] ${isOutOfStock ? 'grayscale opacity-50 cursor-not-allowed shadow-none' : ''}`}
+                style={{ backgroundColor: isOutOfStock ? '#ccc' : accentColor }}
+                onMouseEnter={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = hoverColor)}
+                onMouseLeave={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = accentColor)}
+              >
+                {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );
   };
 
-  // Render a skeleton loading card
   const renderSkeletonCard = (i: number) => {
     return (
-      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[390px] md:h-[430px] w-full flex-shrink-0 relative">
+      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
         <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-black/[0.03] rounded-full animate-pulse z-30" />
         <div className="h-[140px] md:h-[160px] w-full bg-black/[0.05] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
         </div>
-        <div className="px-4 md:px-6 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
-          <div className="h-[44px] md:h-[52px] flex flex-col justify-center items-center">
+        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+          <div className="h-[56px] md:h-[68px] flex flex-col justify-center items-center">
             <div className="h-4 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
-            <div className="h-2.5 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
+            <div className="h-4 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
           </div>
-          <div className="h-[36px] md:h-[44px] grid grid-cols-3 gap-1 md:gap-1.5 mb-3">
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 mt-2 mb-2">
             {[1, 2, 3].map(j => <div key={j} className="h-full bg-black/[0.03] rounded-[8px] animate-pulse" />)}
           </div>
           <div className="mt-auto h-[38px] md:h-[46px] w-full bg-black/[0.05] rounded-[10px] md:rounded-[12px] animate-pulse" />
@@ -274,18 +275,18 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[440px] md:h-[480px] w-full flex-shrink-0 relative">
+      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
         <button
-          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-9 md:h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-20 group/heart"
+          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
             toggleWishlist(i);
           }}
         >
-          <Heart className={`w-3.5 h-3.5 md:w-5 md:h-5 transition-colors ${isInWishlist(i) ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+          <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isInWishlist(i) ? 'fill-red-500 text-red-500' : 'text-black/30 group-heart:text-red-400'}`} />
         </button>
-        <Link href="/product/1" className="h-[160px] md:h-[180px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
+        <Link href="/product/1" className="h-[140px] md:h-[160px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src="/assets/image 53.png"
             alt="Magaya"
@@ -293,23 +294,20 @@ export default function Home() {
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
         </Link>
-        <div className="px-5 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
           <Link href="/product/1" className="flex flex-col flex-shrink-0">
-            <div className="h-[52px] md:h-[64px] flex flex-col justify-center">
-              <h3 className="text-[15px] md:text-[18px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">Magaya</h3>
-              <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">Sun dried Mango pickle</p>
-            </div>
-            <div className="h-[32px] md:h-[40px] flex items-center justify-center mb-2">
-              <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
+            <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
+              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">Magaya</h3>
+              <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">Sun dried Mango pickle prepared with traditional family recipe</p>
             </div>
           </Link>
-          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 items-center flex-shrink-0 mb-3 relative z-10">
-            <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`py-1.5 md:py-2.5 border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-[#3a2212]/70 bg-black/5`}>800/1kg</button>
-            <button className={`py-1.5 md:py-2.5 rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] text-white ${shadowColor}`} style={{ backgroundColor: accentColor }}>800/1kg</button>
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 items-center flex-shrink-0 mt-2 mb-2 relative z-30">
+            <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-[#3a2212]/70 bg-black/5 px-0.5`}>₹400/250g</button>
+            <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-[#3a2212]/70 bg-black/5 px-0.5`}>₹750/500g</button>
+            <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-white ${shadowColor} px-0.5`} style={{ backgroundColor: accentColor }}>₹1400/1KG</button>
           </div>
           <button
-            className={`w-full mt-auto py-3 md:py-4 rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor} relative z-10`}
+            className={`w-full h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} relative z-30 active:scale-[0.98]`}
             style={{ backgroundColor: accentColor }}
             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
