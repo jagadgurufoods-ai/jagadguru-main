@@ -402,9 +402,9 @@ export default function Home() {
       </section>
 
       {/* Mobile Hero & Categories Overlap Section */}
-      <section className="lg:hidden relative w-full bg-[#fdfaf5] overflow-hidden">
-        {/* Banner Area - Using 4:5 Aspect Ratio for the best mobile display */}
-        <div className="relative aspect-[4/5] w-full">
+      <section className="lg:hidden relative w-full bg-[#fdfaf5]">
+        {/* Banner Area */}
+        <div className="relative h-[65vh] min-h-[500px] w-full">
           {data.banners.length > 0 ? (
             data.banners.map((banner, idx) => (
               <div
@@ -414,38 +414,17 @@ export default function Home() {
                 <img
                   src={banner.imageUrl}
                   alt={banner.title || 'Hero'}
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full object-cover brightness-[0.9]"
                 />
-                {/* Modern UI Trick: Floating Glassmorphism Card for Content */}
-                <div className="absolute inset-x-4 bottom-6 z-20">
-                  <div className="bg-black/30 backdrop-blur-xl rounded-[28px] p-6 border border-white/20 shadow-2xl">
-                    <div className="space-y-4">
-                      <div>
-                        {banner.subtitle && <p className="text-[#bf8345] text-[12px] font-[800] uppercase tracking-[0.2em] mb-1 drop-shadow-sm">{banner.subtitle}</p>}
-                        {banner.title && <h1 className="text-white text-[28px] font-serif font-[700] leading-[1.1] drop-shadow-lg">{banner.title}</h1>}
-                      </div>
-                      {banner.ctaText && (
-                        <Link href={banner.ctaLink || '#'} className="inline-flex items-center justify-center bg-[#28a745] hover:bg-[#218838] text-white px-7 py-3 rounded-[12px] font-[800] text-[13px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-full">
-                          {banner.ctaText}
-                        </Link>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Indicator Dots inside the card-area for better visibility */}
-                  {data.banners.length > 1 && (
-                    <div className="flex justify-center gap-2 mt-4">
-                      {data.banners.map((_, i) => (
-                        <div
-                          key={i}
-                          className={`h-1.5 rounded-full transition-all duration-300 ${i === currentBannerIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/30'}`}
-                        />
-                      ))}
-                    </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
+                  {banner.subtitle && <p className="text-white text-[16px] font-serif mb-2 drop-shadow-md">{banner.subtitle}</p>}
+                  {banner.title && <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">{banner.title}</h1>}
+                  {banner.ctaText && (
+                    <Link href={banner.ctaLink || '#'} className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
+                      {banner.ctaText}
+                    </Link>
                   )}
                 </div>
-                {/* Soft bottom vignette to ground the card */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               </div>
             ))
           ) : (
@@ -511,43 +490,45 @@ export default function Home() {
 
       {/* Main Content Sections */}
       <div className="max-w-[1440px] mx-auto w-full px-4 md:px-6 py-12 md:py-20 space-y-16 md:space-y-24">
-        {loading ? (
-          <section className="space-y-8 md:space-y-12">
-            <div className="flex items-center gap-4 md:gap-6">
-              <div className="h-8 w-48 bg-black/[0.05] rounded-lg animate-pulse" />
-              <div className="h-[2px] w-full bg-black/[0.05]" />
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-              {[1, 2, 3, 4].map((i) => renderSkeletonCard(i))}
-            </div>
-          </section>
-        ) : data.sections.length > 0 ? (
-          data.sections.filter(s => s.products.length > 0).map((section, sectionIdx) => (
-            <section key={section.id} className="space-y-6 md:space-y-10">
-              <div className="flex items-center gap-4 md:gap-6">
-                <h2 className="text-[20px] md:text-[28px] font-sans font-[700] text-[#000] whitespace-nowrap uppercase tracking-wider">{section.title}</h2>
-                <div className="h-[1px] w-full bg-[#bf8345]/30" />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                {section.products.map((p) => renderProductCard(p.product, sectionIdx))}
-              </div>
-            </section>
-          ))
-        ) : (
-          <>
-            {/* Best Sellers Section - Fallback */}
+        {
+          loading ? (
             <section className="space-y-8 md:space-y-12">
               <div className="flex items-center gap-4 md:gap-6">
-                <h2 className="text-[24px] md:text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">Best Sellers</h2>
-                <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
+                <div className="h-8 w-48 bg-black/[0.05] rounded-lg animate-pulse" />
+                <div className="h-[2px] w-full bg-black/[0.05]" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                {[1, 2, 3, 4].map((i) => renderFallbackCard(i, true))}
+                {[1, 2, 3, 4].map((i) => renderSkeletonCard(i))}
               </div>
             </section>
-          </>
-        )}
+          ) : data.sections.length > 0 ? (
+            data.sections.filter(s => s.products.length > 0).map((section, sectionIdx) => (
+              <section key={section.id} className="space-y-6 md:space-y-10">
+                <div className="flex items-center gap-4 md:gap-6">
+                  <h2 className="text-[20px] md:text-[28px] font-sans font-[700] text-[#000] whitespace-nowrap uppercase tracking-wider">{section.title}</h2>
+                  <div className="h-[1px] w-full bg-[#bf8345]/30" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                  {section.products.map((p) => renderProductCard(p.product, sectionIdx))}
+                </div>
+              </section>
+            ))
+          ) : (
+            <>
+              {/* Best Sellers Section - Fallback */}
+              <section className="space-y-8 md:space-y-12">
+                <div className="flex items-center gap-4 md:gap-6">
+                  <h2 className="text-[24px] md:text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">Best Sellers</h2>
+                  <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                  {[1, 2, 3, 4].map((i) => renderFallbackCard(i, true))}
+                </div>
+              </section>
+            </>
+          )
+        }
 
         {/* Features Section */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 py-10 border-t border-[#3a2212]/5">
