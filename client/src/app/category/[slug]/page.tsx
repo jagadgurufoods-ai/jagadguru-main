@@ -4,12 +4,21 @@ import { useState, useEffect, use } from 'react';
 import { Plus, Minus, Search, Heart, ShoppingCart, ChevronDown, Filter, Loader2, X, Check } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '../../context/CartContext';
+import { useWishlist } from '../../context/WishlistContext';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+
+interface Variant {
+    id: number;
+    weight: string;
+    price: number | string;
+    stock: number;
+}
 
 export default function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
     const { addToCart } = useCart();
+    const { toggleWishlist, isInWishlist } = useWishlist();
     const [priceRange, setPriceRange] = useState(1000);
     const [categories, setCategories] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
@@ -24,33 +33,25 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         const fetchData = async () => {
             setLoading(true);
             try {
-                console.log('Fetching from API:', API_URL);
                 const catRes = await fetch(`${API_URL}/categories`);
                 if (!catRes.ok) throw new Error(`Failed to fetch categories: ${catRes.status}`);
                 const catData = await catRes.json();
-                console.log('Categories received:', catData.length);
                 setCategories(catData);
 
-                // Use case-insensitive matching for slug
                 const foundCat = catData.find((c: any) => c.slug.toLowerCase() === slug.toLowerCase());
-                console.log('Found Category:', foundCat?.title || 'None');
                 setCurrentCategory(foundCat);
 
                 if (foundCat) {
                     const prodRes = await fetch(`${API_URL}/products?categoryId=${foundCat.id}`);
                     if (!prodRes.ok) throw new Error(`Failed to fetch products: ${prodRes.status}`);
                     const prodData = await prodRes.json();
-                    console.log('Products received for category:', prodData.length);
                     setProducts(prodData);
 
-                    // Initialize product states
                     const initialStates = prodData.reduce((acc: any, p: any) => {
                         acc[p.id] = { quantity: 1, weight: '250g' };
                         return acc;
                     }, {});
                     setProductStates(initialStates);
-                } else {
-                    console.warn(`Category with slug "${slug}" not found in`, catData.map((c: any) => c.slug));
                 }
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -69,17 +70,50 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         { title: 'Land-Press & Seal', desc: 'Each batch is hand-pressed into glass jars and sealed with heritage techniques for freshness.', icon: '/assets/icon_press_and_seal.png' }
     ];
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-4 bg-[#fcf9f4]">
-                <Loader2 className="w-10 h-10 text-[#bf8345] animate-spin" />
-                <p className="text-[#3a2212]/50 font-[500] tracking-wide italic">Brewing your heritage flavors...</p>
+    const renderSkeletonCard = (i: number) => (
+        <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[460px] md:h-[500px] w-full flex-shrink-0 relative">
+            <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-9 md:h-9 bg-black/[0.03] rounded-full animate-pulse z-20" />
+            <div className="h-[180px] md:h-[200px] w-full bg-black/[0.05] relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
             </div>
-        );
-    }
+            <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
+                <div className="h-[52px] md:h-[64px] flex flex-col justify-center items-center">
+                    <div className="h-5 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
+                    <div className="h-3 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
+                </div>
+                <div className="h-[32px] md:h-[40px] flex flex-col justify-center items-center mb-2">
+                    <div className="h-2 w-full bg-black/[0.05] rounded-full animate-pulse mb-1.5" />
+                    <div className="h-2 w-2/3 bg-black/[0.05] rounded-full animate-pulse" />
+                </div>
+                <div className="h-[28px] md:h-[32px] bg-black/[0.05] rounded-full animate-pulse mb-2 mx-auto w-24" />
+                <div className="flex justify-center gap-2 mt-auto h-[42px] md:h-[50px]">
+                    <div className="w-24 h-full bg-black/[0.05] rounded-[10px] animate-pulse" />
+                    <div className="flex-1 h-full bg-black/[0.05] rounded-[10px] animate-pulse" />
+                </div>
+                <div className="flex justify-center gap-1.5 md:gap-2 mt-3 h-[32px] md:h-[36px] flex-shrink-0">
+                    {[1, 2, 3].map(w => (
+                        <div key={w} className="flex-1 h-full bg-black/[0.03] rounded-[8px] animate-pulse" />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
 
     return (
-        <div className="min-h-screen bg-[#fcf9f4] font-sans text-[#3a2212]">
+        <div className="min-h-screen bg-[#fcf9f4] font-sans text-[#3a2212] overflow-x-hidden">
+            {/* Toast Notification */}
+            <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[250] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+                <div className="bg-[#15a31a] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[300px]">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                        <Check className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-[14px] font-[800]">Added to Cart!</p>
+                        <p className="text-[12px] opacity-80">{toastProduct?.name}</p>
+                    </div>
+                </div>
+            </div>
+
             <div className="max-w-[1440px] mx-auto">
                 <div className="flex flex-col lg:flex-row">
                     {/* Left Sidebar */}
@@ -93,8 +127,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                             href={`/category/${cat.slug}`}
                                             className="flex justify-between items-center group cursor-pointer"
                                         >
-                                            <span className={`text-[15px] font-[700] ${cat.slug === slug ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
-                                            <ChevronDown className={`w-4 h-4 ${cat.slug === slug ? 'text-[#bf8345]' : 'text-[#3a2212]/20 group-hover:text-[#3a2212]/40'}`} />
+                                            <span className={`text-[15px] font-[700] ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
+                                            <ChevronDown className={`w-4 h-4 ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/20 group-hover:text-[#3a2212]/40'}`} />
                                         </Link>
                                     </div>
                                 ))}
@@ -106,24 +140,6 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center group cursor-pointer text-[#3a2212]/30">
                                     <span className="text-[12px] font-[800] uppercase tracking-widest">No Active Filters</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="space-y-6">
-                            <h2 className="text-[14px] font-[800] uppercase tracking-widest opacity-30">Price Range</h2>
-                            <div className="space-y-4">
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="5000"
-                                    value={priceRange}
-                                    onChange={(e) => setPriceRange(parseInt(e.target.value))}
-                                    className="w-full accent-[#bf8345] h-1 bg-[#3a2212]/5 rounded-lg appearance-none cursor-pointer"
-                                />
-                                <div className="flex justify-between text-[11px] font-[800] text-[#3a2212]/30">
-                                    <span>Rs. 0</span>
-                                    <span>Rs. {priceRange}</span>
                                 </div>
                             </div>
                         </div>
@@ -168,7 +184,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     <Link
                                         key={cat.id}
                                         href={`/category/${cat.slug}`}
-                                        className={`shrink-0 px-5 py-2.5 rounded-full text-[13px] font-[700] transition-all border ${cat.slug === slug
+                                        className={`shrink-0 px-5 py-2.5 rounded-full text-[13px] font-[700] transition-all border ${cat.slug.toLowerCase() === slug.toLowerCase()
                                             ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
                                             : 'bg-white text-[#3a2212]/40 border-[#3a2212]/5 hover:border-[#3a2212]/20'
                                             }`}
@@ -189,7 +205,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </div>
 
                         {/* Product Grid */}
-                        {!currentCategory ? (
+                        {loading ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+                                {[1, 2, 3, 4, 5, 6].map((i) => renderSkeletonCard(i))}
+                            </div>
+                        ) : !currentCategory ? (
                             <div className="py-24 text-center space-y-6">
                                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto border border-red-100">
                                     <X className="w-10 h-10 text-red-300" />
@@ -201,112 +221,143 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                 <Link href="/" className="inline-block px-8 py-3 bg-[#bf8345] text-white rounded-xl font-bold uppercase tracking-widest text-[12px] shadow-lg shadow-orange-100">Browse All Categories</Link>
                             </div>
                         ) : products.length === 0 ? (
-                            <div className="py-20 text-center space-y-4">
-                                <div className="w-16 h-16 bg-black/[0.03] rounded-full flex items-center justify-center mx-auto">
+                            <div className="py-20 text-center space-y-6">
+                                <div className="w-20 h-20 bg-black/[0.03] rounded-full flex items-center justify-center mx-auto">
                                     <ShoppingCart className="w-8 h-8 text-black/10" />
                                 </div>
-                                <p className="text-black/30 font-[600] uppercase tracking-widest text-[13px]">No products in {currentCategory.title} yet</p>
+                                <div className="space-y-1">
+                                    <h3 className="text-2xl font-serif text-[#3a2212]">No products discovered</h3>
+                                    <p className="text-black/40">We are currently updating our heritage stock for this category.</p>
+                                </div>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
                                 {products.map((p) => {
                                     const state = productStates[p.id] || { quantity: 1, weight: '250g' };
+                                    const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
+                                    const currentPrice = variant ? Number(variant.price) : Number(p.price);
+                                    const currentStock = variant ? variant.stock : p.stock;
+                                    const isOutOfStock = currentStock <= 0;
 
                                     const handleQuantity = (delta: number) => {
+                                        const newQty = Math.max(1, state.quantity + delta);
+                                        if (delta > 0 && newQty > currentStock) return;
                                         setProductStates(prev => ({
                                             ...prev,
-                                            [p.id]: { ...prev[p.id], quantity: Math.max(1, state.quantity + delta) }
+                                            [p.id]: { ...prev[p.id], quantity: newQty }
                                         }));
                                     };
 
                                     const handleWeight = (w: string) => {
                                         setProductStates(prev => ({
                                             ...prev,
-                                            [p.id]: { ...prev[p.id], weight: w }
+                                            [p.id]: { ...prev[p.id], weight: w, quantity: 1 }
                                         }));
                                     };
 
                                     return (
-                                        <div key={p.id} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-xl transition-all duration-500 h-[480px] md:h-[520px] flex flex-col relative shrink-0">
-                                            <Link href={`/product/${p.id}`} className="h-[180px] md:h-[200px] w-full overflow-hidden relative block flex-shrink-0 bg-black/[0.03]">
+                                        <div key={p.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group/card hover:custom-shadow-xl transition-all duration-500 h-[400px] md:h-[440px] flex flex-col relative shrink-0">
+                                            <button
+                                                className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    toggleWishlist(p.id);
+                                                }}
+                                            >
+                                                <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isInWishlist(p.id) ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+                                            </button>
+                                            <Link href={`/product/${p.id}`} className="h-[140px] md:h-[160px] w-full overflow-hidden relative block flex-shrink-0 bg-black/[0.03]">
                                                 <img
                                                     src={p.imageUrl || "/assets/image 53.png"}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                                    className={`w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
                                                     alt={p.name}
                                                     onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
                                                 />
+                                                {isOutOfStock && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
+                                                        <span className="bg-white text-red-600 px-4 py-2 rounded-full font-black text-xs md:text-sm tracking-widest shadow-xl transform -rotate-12 border-2 border-red-600 uppercase">
+                                                            Out of Stock
+                                                        </span>
+                                                    </div>
+                                                )}
                                             </Link>
-                                            <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
-                                                <div className="h-[56px] md:h-[70px] flex flex-col justify-center flex-shrink-0 mb-1">
-                                                    <Link href={`/product/${p.id}`}>
-                                                        <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#3a2212] leading-tight line-clamp-1 hover:text-[#bf8345] transition-colors">{p.name}</h3>
-                                                    </Link>
-                                                    <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic mt-0.5">Authentic {currentCategory?.title}</p>
-                                                </div>
-                                                <div className="h-[36px] md:h-[45px] flex items-center justify-center flex-shrink-0 mb-2">
-                                                    <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[220px] line-clamp-2">{p.description}</p>
+                                            <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+                                                <Link href={`/product/${p.id}`} className="flex flex-col flex-shrink-0">
+                                                    <div className="h-[44px] md:h-[52px] flex flex-col justify-center">
+                                                        <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-1 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{p.name}</h3>
+                                                        <p className="text-[10px] md:text-[12px] text-black/50 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
+                                                            {p.description || "Authentic heritage flavors passed down through generations."}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+
+                                                <div className="h-[28px] md:h-[32px] flex items-center justify-center flex-shrink-0 my-1">
+                                                    <span className="text-[17px] md:text-[20px] font-[800] text-[#3a2212]">₹{currentPrice.toFixed(0)}</span>
+                                                    <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ {state.weight}</span>
                                                 </div>
 
-                                                <div className="h-[30px] md:h-[36px] flex items-center justify-center flex-shrink-0 mb-2">
-                                                    <span className="text-[18px] md:text-[22px] font-[800] text-[#3a2212]">₹{Number(p.price).toFixed(0)}</span>
-                                                    <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ 250g</span>
-                                                </div>
-
-                                                <div className="flex justify-center gap-2 mt-auto h-[42px] md:h-[50px] flex-shrink-0">
-                                                    <div className="flex items-center bg-white rounded-lg border border-black/5 h-full px-1.5 group-hover:border-[#1ea731]/20 transition-colors">
+                                                <div className="flex justify-center gap-2 mt-auto h-[38px] md:h-[46px] relative z-30 flex-shrink-0">
+                                                    <div className={`flex items-center bg-[#fdfaf5] rounded-xl border border-black/5 h-full px-1 transition-colors ${isOutOfStock ? 'opacity-30 pointer-events-none' : ''}`}>
                                                         <button
-                                                            className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
-                                                            onClick={(e) => { e.preventDefault(); handleQuantity(-1); }}
+                                                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(-1); }}
                                                         >
-                                                            <Minus className="w-3 h-3 md:w-4 md:h-4" />
+                                                            <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
                                                         </button>
-                                                        <span className="px-2 md:px-3 text-[13px] md:text-[15px] font-[700] text-[#3a2212] min-w-[24px] text-center">{state.quantity}</span>
+                                                        <span className="px-1.5 md:px-2 text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{state.quantity}</span>
                                                         <button
-                                                            className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
-                                                            onClick={(e) => { e.preventDefault(); handleQuantity(1); }}
+                                                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(1); }}
                                                         >
-                                                            <Plus className="w-3 h-3 md:w-4 md:h-4" />
+                                                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
                                                         </button>
                                                     </div>
                                                     <button
-                                                        className="flex-1 h-full bg-[#5cb85c] rounded-[10px] text-white text-[11px] md:text-[13px] font-[800] shadow-sm hover:bg-[#4cae4c] transition-colors uppercase active:scale-[0.98] flex items-center justify-center"
+                                                        disabled={isOutOfStock}
+                                                        className={`flex-1 h-full rounded-xl text-white text-[11px] md:text-[13px] font-[800] shadow-md transition-all uppercase active:scale-[0.98] flex items-center justify-center tracking-widest ${isOutOfStock ? 'bg-slate-300 shadow-none' : 'bg-[#5cb85c] hover:bg-[#4cae4c] shadow-green-100'}`}
                                                         onClick={(e) => {
+                                                            if (isOutOfStock) return;
                                                             e.preventDefault();
+                                                            e.stopPropagation();
                                                             const pState = productStates[p.id] || { quantity: 1, weight: '250g' };
                                                             addToCart({
                                                                 id: p.id,
                                                                 name: p.name,
-                                                                price: Number(p.price),
+                                                                price: currentPrice,
                                                                 imageUrl: p.imageUrl,
-                                                                stock: p.stock
+                                                                stock: currentStock
                                                             }, pState.quantity, pState.weight);
                                                             setToastProduct(p);
                                                             setShowToast(true);
                                                             setTimeout(() => setShowToast(false), 3000);
                                                         }}
                                                     >
-                                                        ADD TO CART
+                                                        {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
                                                     </button>
                                                 </div>
 
-                                                <div className="flex justify-center gap-1.5 md:gap-2 mt-3 h-[32px] md:h-[36px] flex-shrink-0">
-                                                    {['250g', '500g', '1KG'].map((w) => (
-                                                        <button
-                                                            key={w}
-                                                            onClick={(e) => { e.preventDefault(); handleWeight(w); }}
-                                                            className={`flex-1 flex items-center justify-center rounded-[6px] md:rounded-[8px] text-[9px] md:text-[11px] px-1 font-[700] transition-all whitespace-nowrap ${state.weight === w
-                                                                ? 'bg-[#3a2212] text-white shadow-sm'
-                                                                : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
-                                                                }`}
-                                                        >
-                                                            {w}
-                                                        </button>
-                                                    ))}
+                                                <div className="flex justify-center gap-1 mt-3 h-[28px] md:h-[32px] flex-shrink-0 relative z-30">
+                                                    {['250g', '500g', '1KG'].map((w: string) => {
+                                                        const v = p.variants?.find((v: Variant) => v.weight === w);
+                                                        const vStock = v ? v.stock : p.stock;
+                                                        const isSel = state.weight === w;
+
+                                                        return (
+                                                            <button
+                                                                key={w}
+                                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWeight(w); }}
+                                                                className={`flex-1 flex flex-col items-center justify-center rounded-[8px] text-[8px] md:text-[10px] px-0.5 font-[700] transition-all whitespace-nowrap overflow-hidden ${isSel
+                                                                    ? 'bg-[#3a2212] text-white shadow-sm'
+                                                                    : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
+                                                                    } ${vStock <= 0 ? (isSel ? 'bg-[#3a2212]/80' : 'opacity-40 grayscale') : ''}`}
+                                                            >
+                                                                <span>{w}</span>
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
-                                            <button className="absolute top-3 right-3 md:top-4 md:right-4 w-8 h-8 md:w-9 md:h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-black/30 hover:text-red-500 transition-colors border border-black/5" onClick={(e) => { e.preventDefault(); }}>
-                                                <Heart className="w-4 h-4 md:w-5 md:h-5" />
-                                            </button>
                                         </div>
                                     );
                                 })}
@@ -317,15 +368,15 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
                 {/* Process Section */}
                 <section className="py-24 border-t border-black/5">
-                    <div className="text-center space-y-4 mb-20">
+                    <div className="text-center space-y-4 mb-20 px-6">
                         <span className="text-[14px] font-[700] text-[#bf8345] uppercase tracking-[0.3em]">HOW WE DO IT</span>
-                        <h2 className="text-[64px] font-serif font-[700] text-[#3a2212] leading-tight">Four Steps.<br /><span className="text-[#bf8345] italic font-[400]">Zero Shortcuts.</span></h2>
+                        <h2 className="text-[42px] md:text-[64px] font-serif font-[700] text-[#3a2212] leading-tight max-w-[800px] mx-auto">Four Steps.<br /><span className="text-[#bf8345] italic font-[400]">Zero Shortcuts.</span></h2>
                         <p className="text-[16px] text-[#3a2212]/50 max-w-[500px] mx-auto font-[500] leading-relaxed">Every packet follows a sacred sequence — the same one our founders used for generations.</p>
                     </div>
 
-                    <div className="relative max-w-6xl mx-auto px-12">
-                        <div className="absolute top-12 left-24 right-24 h-[1px] bg-[#3a2212]/10" />
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+                    <div className="relative max-w-6xl mx-auto px-6 md:px-12">
+                        <div className="hidden md:block absolute top-12 left-24 right-24 h-[1px] bg-[#3a2212]/10" />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12 relative">
                             {steps.map((step, i) => (
                                 <div key={i} className="flex flex-col items-center text-center space-y-6 group">
                                     <div className="relative">
@@ -349,9 +400,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
 
             {/* Footer */}
             <footer className="w-full bg-[#1a1a1a] text-white py-20 mt-20">
-                <div className="max-w-[1440px] mx-auto px-12 grid grid-cols-1 md:grid-cols-4 gap-16">
+                <div className="max-w-[1440px] mx-auto px-8 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-16">
                     <div className="space-y-8 col-span-1 md:col-span-1">
-                        <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[80px] w-auto brightness-0 invert" />
+                        <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[60px] md:h-[80px] w-auto brightness-0 invert" />
                         <p className="text-[14px] text-white/60 leading-relaxed font-[300]">Authentic South Indian pickles and powders made with traditional recipes and love.</p>
                         <div className="flex gap-4">
                             <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 cursor-pointer transition-colors">f</div>
@@ -373,7 +424,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
             {/* Toast Notification */}
             <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[250] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
                 <div className="bg-[#15a31a] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[300px]">
-                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                         <Check className="w-6 h-6" />
                     </div>
                     <div>

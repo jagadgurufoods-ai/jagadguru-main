@@ -90,8 +90,22 @@ model Product {
   reviews         ProductReview[]
   sectionProducts HomeSectionProduct[]
   cartItems       CartItem[]
+  variants        ProductVariant[]
 
   @@map("products")
+}
+
+model ProductVariant {
+  id            Int      @id @default(autoincrement())
+  productId     Int      @map("product_id")
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  weight        String   // e.g. "250g", "500g", "1KG"
+  price         Decimal  @db.Decimal(10, 2)
+  originalPrice Decimal? @map("original_price") @db.Decimal(10, 2)
+  stock         Int      @default(0)
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@map("product_variants")
 }
 
 model CartItem {
@@ -101,9 +115,10 @@ model CartItem {
   productId Int      @map("product_id")
   product   Product  @relation(fields: [productId], references: [id])
   quantity  Int      @default(1)
+  weight    String?  @default("250g")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([userId, productId])
+  @@unique([userId, productId, weight])
   @@map("cart_items")
 }
 

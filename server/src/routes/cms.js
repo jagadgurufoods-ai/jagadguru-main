@@ -20,7 +20,7 @@ router.get('/home', async (req, res) => {
             include: {
                 products: {
                     orderBy: { displayOrder: 'asc' },
-                    include: { product: { include: { category: true } } }
+                    include: { product: { include: { category: true, variants: true } } }
                 }
             }
         });

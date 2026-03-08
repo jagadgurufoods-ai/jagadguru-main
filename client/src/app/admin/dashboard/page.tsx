@@ -59,6 +59,8 @@ export default function AdminDashboard() {
     const [editBannerId, setEditBannerId] = useState<number | null>(null);
     const [showSectionForm, setShowSectionForm] = useState(false);
     const [showAddProductToSection, setShowAddProductToSection] = useState<number | null>(null);
+    const [editingProduct, setEditingProduct] = useState<any>(null);
+    const [editSectionId, setEditSectionId] = useState<number | null>(null);
 
     // Banner form state
     const [bannerForm, setBannerForm] = useState({ title: '', subtitle: '', ctaText: '', ctaLink: '', displayOrder: '' });
@@ -66,6 +68,7 @@ export default function AdminDashboard() {
 
     // Section form state
     const [sectionForm, setSectionForm] = useState({ title: '', slug: '', displayOrder: '' });
+    const [isEditingSection, setIsEditingSection] = useState(false);
 
     // Add product to section state
     const [selectedProductId, setSelectedProductId] = useState('');
@@ -155,10 +158,24 @@ export default function AdminDashboard() {
         fetchSections();
     };
 
+    const editSection = (section: HomeSection) => {
+        setEditSectionId(section.id);
+        setSectionForm({
+            title: section.title,
+            slug: section.slug,
+            displayOrder: section.displayOrder?.toString() || ''
+        });
+        setIsEditingSection(true);
+        setShowSectionForm(true);
+    };
+
     const createSection = async (e: React.FormEvent) => {
         e.preventDefault();
-        await fetch(`${API_URL}/cms/sections`, {
-            method: 'POST',
+        const url = editSectionId ? `${API_URL}/cms/sections/${editSectionId}` : `${API_URL}/cms/sections`;
+        const method = editSectionId ? 'PUT' : 'POST';
+
+        await fetch(url, {
+            method,
             headers: { 'Content-Type': 'application/json', ...headers() },
             body: JSON.stringify({
                 title: sectionForm.title,
@@ -167,6 +184,8 @@ export default function AdminDashboard() {
             })
         });
         setShowSectionForm(false);
+        setEditSectionId(null);
+        setIsEditingSection(false);
         setSectionForm({ title: '', slug: '', displayOrder: '' });
         fetchSections();
     };
@@ -225,7 +244,7 @@ export default function AdminDashboard() {
                         if (view === 'products') setShowProductForm(true);
                         else if (view === 'categories') setShowCategoryForm(true);
                         else if (view === 'banners') setShowBannerForm(true);
-                        else if (view === 'sections') setShowSectionForm(true);
+                        else if (view === 'sections') { setEditSectionId(null); setIsEditingSection(false); setSectionForm({ title: '', slug: '', displayOrder: '' }); setShowSectionForm(true); }
                     }}
                     className="bg-green-600 text-white px-8 py-3 rounded-2xl font-black hover:bg-green-700 transition-all transform hover:scale-[1.02] shadow-xl shadow-green-200"
                 >
@@ -233,7 +252,13 @@ export default function AdminDashboard() {
                 </button>
             </div>
 
-            {showProductForm && <ProductForm onClose={() => setShowProductForm(false)} onSuccess={fetchProducts} />}
+            {showProductForm && (
+                <ProductForm
+                    onClose={() => { setShowProductForm(false); setEditingProduct(null); }}
+                    initialData={editingProduct}
+                    onSuccess={() => { fetchProducts(); setEditingProduct(null); setShowProductForm(false); }}
+                />
+            )}
             {showCategoryForm && <CategoryForm onClose={() => setShowCategoryForm(false)} onSuccess={fetchCategories} />}
 
             {/* Banner Form */}
@@ -264,7 +289,7 @@ export default function AdminDashboard() {
             {/* Section Form */}
             {showSectionForm && (
                 <div className="bg-white rounded-[24px] p-8 border border-slate-100 shadow-lg">
-                    <h2 className="text-xl font-bold mb-6">Add New Section</h2>
+                    <h2 className="text-xl font-bold mb-6">{isEditingSection ? 'Edit Section' : 'Add New Section'}</h2>
                     <form onSubmit={createSection} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <input placeholder="Title (e.g. Best Sellers)" required value={sectionForm.title} onChange={e => setSectionForm({ ...sectionForm, title: e.target.value })}
                             className="px-4 py-3 border border-slate-200 rounded-xl text-sm" />
@@ -273,8 +298,10 @@ export default function AdminDashboard() {
                         <input type="number" placeholder="Display Order" value={sectionForm.displayOrder} onChange={e => setSectionForm({ ...sectionForm, displayOrder: e.target.value })}
                             className="px-4 py-3 border border-slate-200 rounded-xl text-sm" />
                         <div className="md:col-span-3 flex gap-4">
-                            <button type="submit" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold">Create Section</button>
-                            <button type="button" onClick={() => setShowSectionForm(false)} className="px-8 py-3 border border-slate-200 rounded-xl font-bold text-slate-500">Cancel</button>
+                            <button type="submit" className="px-8 py-3 bg-green-600 text-white rounded-xl font-bold">
+                                {isEditingSection ? 'Update Section' : 'Create Section'}
+                            </button>
+                            <button type="button" onClick={() => { setShowSectionForm(false); setEditSectionId(null); setIsEditingSection(false); }} className="px-8 py-3 border border-slate-200 rounded-xl font-bold text-slate-500">Cancel</button>
                         </div>
                     </form>
                 </div>
@@ -313,7 +340,8 @@ export default function AdminDashboard() {
                                             {product.stock} units
                                         </span>
                                     </td>
-                                    <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-bold">
+                                    <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-bold flex justify-end gap-4">
+                                        <button onClick={() => { setEditingProduct(product); setShowProductForm(true); }} className="text-green-600 hover:text-green-800 transition-colors">Edit</button>
                                         <button onClick={() => deleteProduct(product.id)} className="text-slate-400 hover:text-red-600 transition-colors">Delete</button>
                                     </td>
                                 </tr>
@@ -412,6 +440,7 @@ export default function AdminDashboard() {
                                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${section.isActive ? 'bg-green-50 text-green-700' : 'bg-slate-100 text-slate-400'}`}>
                                         {section.isActive ? 'Active' : 'Inactive'}
                                     </span>
+                                    <button onClick={() => editSection(section)} className="text-sm font-bold text-green-600 hover:text-green-700">Edit</button>
                                     <button onClick={() => toggleSection(section.id)} className="text-sm font-bold text-slate-400 hover:text-green-600">
                                         {section.isActive ? 'Deactivate' : 'Activate'}
                                     </button>

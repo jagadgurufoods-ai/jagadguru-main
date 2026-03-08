@@ -59,3 +59,13 @@ h4,
   scrollbar-width: none;
   /* Firefox */
 }
+
+@keyframes shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}

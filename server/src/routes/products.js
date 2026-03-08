@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 
         const products = await prisma.product.findMany({
             where,
-            include: { category: true }
+            include: { category: true, variants: true }
         });
         res.json(products);
     } catch (error) {
@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
         const { id } = req.params;
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) },
-            include: { category: true }
+            include: { category: true, variants: true }
         });
 
         if (!product) {
@@ -54,7 +54,7 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredients, pairsWellWith, tasteMeter
+        ingredients, pairsWellWith, tasteMeter, variants
     } = req.body;
 
     let imageUrl = null;
@@ -62,13 +62,16 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
         if (req.file) {
             imageUrl = await uploadToS3(req.file);
         }
+
+        const parsedVariants = variants ? JSON.parse(variants) : [];
+
         const product = await prisma.product.create({
             data: {
                 name,
                 description,
-                price: parseFloat(price),
+                price: parseFloat(price || 0),
                 originalPrice: originalPrice ? parseFloat(originalPrice) : null,
-                stock: parseInt(stock),
+                stock: parseInt(stock || 0),
                 categoryId: parseInt(categoryId),
                 quantity: quantity ? parseFloat(quantity) : null,
                 grandmasSays,
@@ -76,10 +79,20 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
                 imageUrl,
                 pairsWellWith,
                 tasteMeter: tasteMeter ? parseInt(tasteMeter) : null,
-            }
+                variants: {
+                    create: parsedVariants.map(v => ({
+                        weight: v.weight,
+                        price: parseFloat(v.price),
+                        originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
+                        stock: parseInt(v.stock)
+                    }))
+                }
+            },
+            include: { variants: true }
         });
         res.status(201).json(product);
     } catch (error) {
+        console.error('Error creating product:', error);
         res.status(400).json({ error: error.message });
     }
 });
@@ -89,7 +102,7 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredients, pairsWellWith, tasteMeter
+        ingredients, pairsWellWith, tasteMeter, variants
     } = req.body;
 
     try {
@@ -109,13 +122,29 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
             data.imageUrl = await uploadToS3(req.file);
         }
 
+        if (variants) {
+            const parsedVariants = JSON.parse(variants);
+            // Delete old variants and create new ones for simplicity, or update them.
+            // Let's go with delete and recreate for simplicity in a sync operation.
+            data.variants = {
+                deleteMany: {},
+                create: parsedVariants.map(v => ({
+                    weight: v.weight,
+                    price: parseFloat(v.price),
+                    originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
+                    stock: parseInt(v.stock)
+                }))
+            };
+        }
+
         const product = await prisma.product.update({
             where: { id: parseInt(req.params.id) },
             data,
-            include: { category: true }
+            include: { category: true, variants: true }
         });
         res.json(product);
     } catch (error) {
+        console.error('Error updating product:', error);
         res.status(400).json({ error: error.message });
     }
 });

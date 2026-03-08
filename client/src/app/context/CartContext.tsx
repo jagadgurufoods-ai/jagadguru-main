@@ -74,11 +74,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
             });
             if (res.ok) {
                 const data = await res.json();
-                setItems(data.map((item: { id: number; productId: number; quantity: number; product: CartProduct }) => ({
+                setItems(data.map((item: any) => ({
                     id: item.id,
                     productId: item.productId || item.product?.id,
                     quantity: item.quantity,
-                    product: item.product
+                    product: item.product,
+                    selectedWeight: item.weight
                 })));
             }
         } catch (err) {
@@ -99,7 +100,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
     }, [items, isLoggedIn]);
 
-    const addToCart = async (product: CartProduct, quantity = 1, weight?: string) => {
+    const addToCart = async (product: CartProduct & { variants?: any[] }, quantity = 1, weight?: string) => {
         // Optimistic Update
         const optimisticId = Date.now();
         const newItem: CartItem = {
@@ -196,7 +197,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
 
     const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
-    const totalPrice = items.reduce((sum, i) => sum + (Number(i.product?.price || 0) * i.quantity), 0);
+    const totalPrice = items.reduce((sum, i) => {
+        const variant = (i.product as any)?.variants?.find((v: any) => v.weight === i.selectedWeight);
+        const price = variant ? Number(variant.price) : Number(i.product?.price || 0);
+        return sum + (price * i.quantity);
+    }, 0);
 
     return (
         <CartContext.Provider value={{

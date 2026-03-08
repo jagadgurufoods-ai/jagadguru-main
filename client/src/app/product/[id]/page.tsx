@@ -6,6 +6,13 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
 
+interface Variant {
+    id: number;
+    weight: string;
+    price: number;
+    stock: number;
+}
+
 interface Product {
     id: number;
     name: string;
@@ -19,6 +26,7 @@ interface Product {
     tasteMeter?: number;
     quantity?: number;
     stock: number;
+    variants?: Variant[];
     category?: {
         title: string;
     };
@@ -35,6 +43,11 @@ export default function ProductDetail() {
     const [addingToCart, setAddingToCart] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
     const [showToast, setShowToast] = useState(false);
+
+    const currentVariant = product?.variants?.find(v => v.weight === selectedWeight);
+    const currentPrice = currentVariant ? Number(currentVariant.price) : Number(product?.price || 0);
+    const currentStock = currentVariant ? currentVariant.stock : (product?.stock || 0);
+    const isOutOfStock = currentStock <= 0;
 
     useEffect(() => {
         if (!id) return;
@@ -55,15 +68,15 @@ export default function ProductDetail() {
     }, [id]);
 
     const handleAddToCart = async () => {
-        if (!product) return;
+        if (!product || isOutOfStock) return;
         setAddingToCart(true);
         try {
             await addToCart({
                 id: product.id,
                 name: product.name,
-                price: Number(product.price),
+                price: currentPrice,
                 imageUrl: product.imageUrl,
-                stock: product.stock
+                stock: currentStock
             }, quantity, selectedWeight);
             setAddedToCart(true);
             setShowToast(true);
@@ -80,13 +93,14 @@ export default function ProductDetail() {
             setQuantity(1);
             return;
         }
+        if (newQty > currentStock) return;
         setQuantity(newQty);
         await addToCart({
             id: product.id,
             name: product.name,
-            price: Number(product.price),
+            price: currentPrice,
             imageUrl: product.imageUrl,
-            stock: product.stock
+            stock: currentStock
         }, newQty, selectedWeight);
     };
 
@@ -130,12 +144,19 @@ export default function ProductDetail() {
                     <div className="pt-8 lg:pt-24 pb-12 lg:pb-20 px-4 sm:px-12 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
                         <div className="lg:col-span-5">
                             <div className="relative group">
-                                <div className="aspect-square rounded-[32px] md:rounded-[24px] overflow-hidden bg-white shadow-[0_20px_50px_-15px_rgba(191,131,69,0.15)] border border-black/5 transform transition-all duration-700">
+                                <div className="aspect-square rounded-[32px] md:rounded-[24px] overflow-hidden bg-white shadow-[0_20px_50px_-15px_rgba(191,131,69,0.15)] border border-black/5 transform transition-all duration-700 relative">
                                     <img
                                         src={product.imageUrl || "/assets/amla_pickle_jar_premium.png"}
                                         alt={product.name}
-                                        className="w-full h-full object-cover"
+                                        className={`w-full h-full object-cover ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
                                     />
+                                    {isOutOfStock && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <span className="bg-white text-red-600 px-6 py-3 rounded-full font-black text-xl tracking-widest shadow-2xl border-4 border-red-600 uppercase transform -rotate-12">
+                                                Out of Stock
+                                            </span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -161,10 +182,17 @@ export default function ProductDetail() {
                                 </div>
                             </div>
 
-                            <div className="text-[32px] sm:text-[40px] lg:text-[48px] font-sans font-[800] text-[#3a2212] tracking-tight">
-                                ₹{Number(product.price).toFixed(2)}
-                                {product.originalPrice && (
-                                    <span className="ml-4 text-[24px] text-black/20 line-through">₹{Number(product.originalPrice).toFixed(2)}</span>
+                            <div className="flex flex-col gap-2">
+                                <div className="text-[32px] sm:text-[40px] lg:text-[48px] font-sans font-[800] text-[#3a2212] tracking-tight">
+                                    ₹{currentPrice.toFixed(2)}
+                                    {product.originalPrice && (
+                                        <span className="ml-4 text-[24px] text-black/20 line-through">₹{Number(product.originalPrice).toFixed(2)}</span>
+                                    )}
+                                </div>
+                                {isOutOfStock && (
+                                    <p className="text-red-500 font-bold uppercase text-[12px] tracking-widest animate-pulse flex items-center gap-2">
+                                        <Check className="w-4 h-4 text-red-500 grayscale opacity-40 rotate-45" /> Currently Unavailable in {selectedWeight}
+                                    </p>
                                 )}
                             </div>
 
@@ -173,7 +201,7 @@ export default function ProductDetail() {
                             </p>
 
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 sm:gap-6 py-4">
-                                <div className="flex items-center justify-between sm:justify-start bg-white rounded-[12px] border border-black/10 h-[56px] px-2 sm:px-2">
+                                <div className={`flex items-center justify-between sm:justify-start bg-white rounded-[12px] border border-black/10 h-[56px] px-2 sm:px-2 transition-all ${isOutOfStock ? 'opacity-30 pointer-events-none grayscale' : ''}`}>
                                     <button
                                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         className="w-8 h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/40"
@@ -182,7 +210,7 @@ export default function ProductDetail() {
                                     </button>
                                     <span className="px-6 text-[18px] font-[700] text-[#3a2212] min-w-[50px] text-center">{quantity}</span>
                                     <button
-                                        onClick={() => setQuantity(quantity + 1)}
+                                        onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
                                         className="w-8 h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/40"
                                     >
                                         <Plus className="w-4 h-4" />
@@ -190,18 +218,25 @@ export default function ProductDetail() {
                                 </div>
 
                                 <div className="flex gap-2">
-                                    {['250g', '500g', '1KG'].map((w) => (
-                                        <button
-                                            key={w}
-                                            onClick={() => setSelectedWeight(w)}
-                                            className={`px-6 py-4 rounded-[12px] text-[13px] font-[800] transition-all border ${selectedWeight === w
+                                    {['250g', '500g', '1KG'].map((w) => {
+                                        const variant = product.variants?.find(v => v.weight === w);
+                                        const variantStock = variant ? variant.stock : product.stock;
+                                        const variantOutOfStock = variantStock <= 0;
+
+                                        return (
+                                            <button
+                                                key={w}
+                                                onClick={() => { setSelectedWeight(w); setQuantity(1); setAddedToCart(false); }}
+                                                className={`px-6 py-4 rounded-[12px] text-[13px] font-[800] transition-all border flex flex-col items-center justify-center gap-0.5 relative overflow-hidden ${selectedWeight === w
                                                     ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
                                                     : 'bg-white text-[#3a2212]/40 border-black/10 hover:border-black/20'
-                                                }`}
-                                        >
-                                            {w}
-                                        </button>
-                                    ))}
+                                                    } ${variantOutOfStock ? 'opacity-60 grayscale' : ''}`}
+                                            >
+                                                <span>{w}</span>
+                                                {variantOutOfStock && <span className="text-[7px] md:text-[8px] uppercase font-black text-red-500/80 tracking-tighter">No Stock</span>}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -212,25 +247,26 @@ export default function ProductDetail() {
                                             onClick={() => handleQuantityChange(quantity - 1)}
                                             className="w-12 h-12 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[28px] font-[700]"
                                         >
-                                            −
+                                            <Minus className="w-6 h-6" />
                                         </button>
                                         <span className="px-8 text-[22px] font-[800] text-[#3a2212] min-w-[60px] text-center">{quantity}</span>
                                         <button
                                             onClick={() => handleQuantityChange(quantity + 1)}
-                                            className="w-12 h-12 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[28px] font-[700]"
+                                            disabled={quantity >= currentStock}
+                                            className={`w-12 h-12 flex items-center justify-center rounded-full transition-colors text-[#15a31a] text-[28px] font-[700] ${quantity >= currentStock ? 'opacity-20' : 'hover:bg-[#15a31a]/10'}`}
                                         >
-                                            +
+                                            <Plus className="w-6 h-6" />
                                         </button>
                                     </div>
                                 </div>
                             ) : (
                                 <button
                                     onClick={handleAddToCart}
-                                    disabled={addingToCart}
-                                    className="w-full py-5 bg-[#bf8345] rounded-[8px] text-white text-[15px] font-[800] tracking-[0.1em] uppercase hover:bg-[#a6713a] transition-all flex items-center justify-center gap-4 shadow-xl shadow-orange-200/40 mt-6 disabled:opacity-50"
+                                    disabled={addingToCart || isOutOfStock}
+                                    className={`w-full py-5 rounded-[8px] text-white text-[15px] font-[800] tracking-[0.1em] uppercase transition-all flex items-center justify-center gap-4 shadow-xl mt-6 disabled:opacity-50 ${isOutOfStock ? 'bg-slate-400 shadow-none cursor-not-allowed grayscale' : 'bg-[#bf8345] hover:bg-[#a6713a] shadow-orange-200/40'}`}
                                 >
                                     {addingToCart ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />}
-                                    ADD TO CART
+                                    {isOutOfStock ? 'OUT OF STOCK' : 'ADD TO CART'}
                                 </button>
                             )}
 

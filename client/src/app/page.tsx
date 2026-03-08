@@ -3,7 +3,15 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useCart } from './context/CartContext';
-import { Check, X, Minus, Plus } from 'lucide-react';
+import { useWishlist } from './context/WishlistContext';
+import { Check, X, Minus, Plus, Heart } from 'lucide-react';
+
+interface Variant {
+  id: number;
+  weight: string;
+  price: number;
+  stock: number;
+}
 
 interface Product {
   id: number;
@@ -14,6 +22,18 @@ interface Product {
   grandmasSays?: string;
   tasteMeter?: number;
   stock: number;
+  variants?: Variant[];
+}
+
+interface Banner {
+  id: number;
+  title?: string;
+  subtitle?: string;
+  imageUrl: string;
+  ctaText?: string;
+  ctaLink?: string;
+  isActive: boolean;
+  displayOrder?: number;
 }
 
 interface HomeSection {
@@ -23,14 +43,21 @@ interface HomeSection {
   products: { product: Product }[];
 }
 
+interface HomeData {
+  banners: Banner[];
+  sections: HomeSection[];
+}
+
 export default function Home() {
-  const [data, setData] = useState<{ sections: HomeSection[] }>({ sections: [] });
+  const [data, setData] = useState<HomeData>({ banners: [], sections: [] });
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
   const [cartQuantities, setCartQuantities] = useState<Record<number, number>>({});
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
   const [showToast, setShowToast] = useState(false);
   const [selectedWeights, setSelectedWeights] = useState<Record<number, string>>({});
+  const { toggleWishlist, isInWishlist } = useWishlist();
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
 
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/cms/home`)
@@ -46,6 +73,15 @@ export default function Home() {
         setLoading(false);
       });
   }, []);
+
+  useEffect(() => {
+    if (data.banners.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentBannerIndex(prev => (prev + 1) % data.banners.length);
+      }, 5000);
+      return () => clearInterval(timer);
+    }
+  }, [data.banners.length]);
 
   const categories = [
     { name: 'PICKLES', icon: '/assets/image 37.png', link: '/category/pickles' },
@@ -105,6 +141,9 @@ export default function Home() {
     const borderColor = isGreen ? 'border-[#15a31a]/40' : 'border-[#bf8345]/40';
 
     const currentWeight = selectedWeights[product.id] || '250g';
+    const currentVariant = product.variants?.find((v: Variant) => v.weight === currentWeight);
+    const isOutOfStock = currentVariant ? currentVariant.stock <= 0 : product.stock <= 0;
+    const isWishlisted = isInWishlist(product.id);
 
     const handleWeightClick = (e: React.MouseEvent, w: string) => {
       e.preventDefault();
@@ -112,71 +151,115 @@ export default function Home() {
       setSelectedWeights(prev => ({ ...prev, [product.id]: w }));
     };
 
+    const renderVariantButton = (weight: string) => {
+      const variant = product.variants?.find((v: Variant) => v.weight === weight);
+      const price = variant ? Number(variant.price) : (weight === '250g' ? Number(product.price) : weight === '500g' ? Number(product.price) * 2 : Number(product.price) * 3.5);
+      const isSelected = currentWeight === weight;
+
+      return (
+        <button
+          onClick={(e) => handleWeightClick(e, weight)}
+          className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${isSelected ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
+        >
+          ₹{price.toFixed(0)}/{weight}
+        </button>
+      );
+    };
+
     return (
-      <div key={product.id} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0 relative">
-        <Link href={`/product/${product.id}`} className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
+      <div key={product.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[400px] md:h-[440px] w-full flex-shrink-0 relative">
+        <button
+          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(product.id);
+          }}
+        >
+          <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+        </button>
+        <Link href={`/product/${product.id}`} className="h-[140px] md:h-[160px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src={product.imageUrl || '/assets/image 53.png'}
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
-        </Link>
-        <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
-          <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
-            <div className="h-[56px] md:h-[70px] flex flex-col justify-center">
-              <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">{product.name}</h3>
-              <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">{product.description || 'Premium quality product'}</p>
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] flex items-center justify-center z-10">
+              <span className="bg-white text-red-600 px-4 py-2 rounded-full font-black text-xs md:text-sm tracking-widest shadow-xl transform -rotate-12 border-2 border-red-600 uppercase">
+                Out of Stock
+              </span>
             </div>
-            <div className="h-[36px] md:h-[45px] flex items-center justify-center mb-2">
-              <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">
-                {product.grandmasSays || product.description || 'An aromatic preparation that is an all time favourite'}
+          )}
+        </Link>
+        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+          <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
+            <div className="h-[44px] md:h-[52px] flex flex-col justify-center">
+              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-1 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{product.name}</h3>
+              <p className="text-[10px] md:text-[12px] text-black/50 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
+                {product.grandmasSays || product.description || 'Authentic heritage flavors passed down through generations'}
               </p>
             </div>
           </Link>
-          <div className="h-[40px] md:h-[50px] grid grid-cols-3 gap-1.5 md:gap-2 flex-shrink-0 mb-3 relative z-10">
-            <button
-              onClick={(e) => handleWeightClick(e, '250g')}
-              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '250g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
-            >₹{Number(product.price).toFixed(0)}/250g</button>
-            <button
-              onClick={(e) => handleWeightClick(e, '500g')}
-              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '500g' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
-            >₹{(Number(product.price) * 2).toFixed(0)}/500g</button>
-            <button
-              onClick={(e) => handleWeightClick(e, '1KG')}
-              className={`flex items-center justify-center border-[1px] rounded-[8px] md:rounded-[10px] text-[9px] md:text-[11px] font-[700] transition-all whitespace-nowrap px-1 ${currentWeight === '1KG' ? 'bg-[#3a2212] border-[#3a2212] text-white' : 'border-dashed ' + borderColor + ' text-[#3a2212]/70 bg-black/[0.02]'}`}
-            >₹{(Number(product.price) * 3.5).toFixed(0)}/1kg</button>
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 flex-shrink-0 my-3 relative z-30">
+            {renderVariantButton('250g')}
+            {renderVariantButton('500g')}
+            {renderVariantButton('1KG')}
           </div>
           {cartQuantities[product.id] ? (
-            <div className="mt-auto flex items-center justify-center h-[42px] md:h-[50px] flex-shrink-0 relative z-10">
-              <div className="flex items-center bg-white rounded-full border-2 border-[#15a31a] h-full px-2 md:px-3 gap-1 w-fit">
+            <div className="mt-auto flex items-center justify-center h-[38px] md:h-[46px] flex-shrink-0 relative z-30" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between bg-white rounded-xl border-2 border-[#15a31a] h-full px-1 gap-1 w-full max-w-[120px] md:max-w-[150px] mx-auto">
                 <button
                   onClick={(e) => handleCardQuantityChange(e, product, -1)}
-                  className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[22px] font-[700] leading-none"
+                  className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] font-[700]"
                 >
-                  −
+                  <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
                 </button>
-                <span className="px-3 md:px-5 text-[15px] md:text-[18px] font-[800] text-[#3a2212] min-w-[30px] md:min-w-[40px] text-center">{cartQuantities[product.id]}</span>
+                <span className="text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{cartQuantities[product.id]}</span>
                 <button
+                  disabled={isOutOfStock}
                   onClick={(e) => handleCardQuantityChange(e, product, 1)}
-                  className="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center hover:bg-[#15a31a]/10 rounded-full transition-colors text-[#15a31a] text-[18px] md:text-[22px] font-[700] leading-none"
+                  className={`w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full transition-colors text-[#15a31a] font-[700] ${isOutOfStock ? 'opacity-30' : 'hover:bg-[#15a31a]/10'}`}
                 >
-                  +
+                  <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#15a31a]" />
                 </button>
               </div>
             </div>
           ) : (
             <button
               onClick={(e) => handleAddToCart(e, product)}
-              className={`w-full mt-auto h-[42px] md:h-[50px] flex items-center justify-center rounded-[12px] md:rounded-[16px] text-white text-[13px] md:text-[14px] font-[800] tracking-[0.02em] uppercase transition-colors shadow-lg ${shadowLgColor} relative z-10`}
-              style={{ backgroundColor: accentColor }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = hoverColor)}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = accentColor)}
+              disabled={isOutOfStock}
+              className={`w-full mt-auto h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} relative z-30 active:scale-[0.98] ${isOutOfStock ? 'grayscale opacity-50 cursor-not-allowed shadow-none' : ''}`}
+              style={{ backgroundColor: isOutOfStock ? '#ccc' : accentColor }}
+              onMouseEnter={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = hoverColor)}
+              onMouseLeave={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = accentColor)}
             >
-              ADD TO CART
+              {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
             </button>
           )}
+        </div>
+      </div>
+    );
+  };
+
+  // Render a skeleton loading card
+  const renderSkeletonCard = (i: number) => {
+    return (
+      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[390px] md:h-[430px] w-full flex-shrink-0 relative">
+        <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-black/[0.03] rounded-full animate-pulse z-30" />
+        <div className="h-[140px] md:h-[160px] w-full bg-black/[0.05] relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
+        </div>
+        <div className="px-4 md:px-6 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
+          <div className="h-[44px] md:h-[52px] flex flex-col justify-center items-center">
+            <div className="h-4 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
+            <div className="h-2.5 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
+          </div>
+          <div className="h-[36px] md:h-[44px] grid grid-cols-3 gap-1 md:gap-1.5 mb-3">
+            {[1, 2, 3].map(j => <div key={j} className="h-full bg-black/[0.03] rounded-[8px] animate-pulse" />)}
+          </div>
+          <div className="mt-auto h-[38px] md:h-[46px] w-full bg-black/[0.05] rounded-[10px] md:rounded-[12px] animate-pulse" />
         </div>
       </div>
     );
@@ -191,8 +274,18 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[480px] md:h-[520px] w-full flex-shrink-0 relative">
-        <Link href="/product/1" className="h-[180px] md:h-[200px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
+      <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[440px] md:h-[480px] w-full flex-shrink-0 relative">
+        <button
+          className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-9 md:h-9 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-20 group/heart"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleWishlist(i);
+          }}
+        >
+          <Heart className={`w-3.5 h-3.5 md:w-5 md:h-5 transition-colors ${isInWishlist(i) ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+        </button>
+        <Link href="/product/1" className="h-[160px] md:h-[180px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src="/assets/image 53.png"
             alt="Magaya"
@@ -202,11 +295,11 @@ export default function Home() {
         </Link>
         <div className="px-5 md:px-8 pb-4 md:pb-6 pt-4 md:pt-6 text-center flex-1 flex flex-col overflow-hidden">
           <Link href="/product/1" className="flex flex-col flex-shrink-0">
-            <div className="h-[56px] md:h-[70px] flex flex-col justify-center">
-              <h3 className="text-[18px] md:text-[22px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">Magaya</h3>
+            <div className="h-[52px] md:h-[64px] flex flex-col justify-center">
+              <h3 className="text-[15px] md:text-[18px] font-sans font-[700] text-[#000] leading-tight line-clamp-1 group-hover:text-[#bf8345] transition-colors">Magaya</h3>
               <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-1 mt-0.5">Sun dried Mango pickle</p>
             </div>
-            <div className="h-[36px] md:h-[45px] flex items-center justify-center mb-2">
+            <div className="h-[32px] md:h-[40px] flex items-center justify-center mb-2">
               <p className="text-[10px] md:text-[12px] text-black/50 leading-relaxed font-[500] max-w-[240px] line-clamp-2">An aromatic preparation that is an all time favourite of pickle lovers</p>
             </div>
           </Link>
@@ -248,10 +341,48 @@ export default function Home() {
 
       {/* Hero Section - Desktop Only */}
       <section className="relative w-full h-[calc(100vh-90px)] min-h-[600px] overflow-hidden hidden lg:block">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('/assets/image 65.png')" }}
-        />
+        {data.banners.length > 0 ? (
+          data.banners.map((banner, idx) => (
+            <div
+              key={banner.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentBannerIndex ? 'opacity-100' : 'opacity-0'}`}
+            >
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url('${banner.imageUrl}')` }}
+              />
+              <div className="absolute inset-0 bg-black/20 flex flex-col justify-center px-24">
+                <div className="max-w-[1440px] mx-auto w-full">
+                  {banner.subtitle && <p className="text-white text-[20px] font-serif italic mb-2 drop-shadow-lg">{banner.subtitle}</p>}
+                  {banner.title && <h1 className="text-white text-[64px] font-serif font-[700] leading-[1.1] mb-8 drop-shadow-lg max-w-2xl">{banner.title}</h1>}
+                  {banner.ctaText && (
+                    <Link href={banner.ctaLink || '#'} className="bg-[#28a745] hover:bg-[#218838] text-white px-10 py-4 rounded-[12px] font-[800] text-[16px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-fit inline-block">
+                      {banner.ctaText}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: "url('/assets/image 65.png')" }}
+          />
+        )}
+
+        {data.banners.length > 1 && (
+          <div className="absolute bottom-[130px] left-24 flex gap-3 z-30">
+            {data.banners.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentBannerIndex(idx)}
+                className={`w-3 h-3 rounded-full transition-all ${idx === currentBannerIndex ? 'bg-white scale-125' : 'bg-white/40'}`}
+              />
+            ))}
+          </div>
+        )}
+
         <div className="absolute bottom-0 left-0 w-full bg-[#bf8345] z-20">
           <div className="max-w-[1440px] mx-auto grid grid-cols-6 h-[100px]">
             {categories.map((cat, idx) => (
@@ -274,28 +405,59 @@ export default function Home() {
       <section className="lg:hidden relative w-full bg-[#fdfaf5]">
         {/* Banner Area */}
         <div className="relative h-[65vh] min-h-[500px] w-full">
-          <img
-            src="/assets/image 65.png"
-            alt="Jagadguru Heritage"
-            className="w-full h-full object-cover brightness-[0.9]"
-          />
-          {/* Banner Content Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
-            <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">
-              Authentic Delights,<br />
-              <span className="italic font-[400]">A Tangy Heritage</span>
-            </h1>
-            <button className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
-              Explore
-            </button>
+          {data.banners.length > 0 ? (
+            data.banners.map((banner, idx) => (
+              <div
+                key={banner.id}
+                className={`absolute inset-0 transition-opacity duration-1000 ${idx === currentBannerIndex ? 'opacity-100' : 'opacity-0'}`}
+              >
+                <img
+                  src={banner.imageUrl}
+                  alt={banner.title || 'Hero'}
+                  className="w-full h-full object-cover brightness-[0.9]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
+                  {banner.subtitle && <p className="text-white text-[16px] font-serif italic mb-2 drop-shadow-md">{banner.subtitle}</p>}
+                  {banner.title && <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">{banner.title}</h1>}
+                  {banner.ctaText && (
+                    <Link href={banner.ctaLink || '#'} className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
+                      {banner.ctaText}
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <>
+              <img
+                src="/assets/image 65.png"
+                alt="Jagadguru Heritage"
+                className="w-full h-full object-cover brightness-[0.9]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
+                <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">
+                  Authentic Delights,<br />
+                  <span className="italic font-[400]">A Tangy Heritage</span>
+                </h1>
+                <button className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
+                  Explore
+                </button>
+              </div>
+            </>
+          )}
 
-            {/* Carousel Dots */}
-            <div className="flex gap-2 mt-8">
-              <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/40"></div>
-              <div className="w-2.5 h-2.5 rounded-full bg-white/40"></div>
+          {/* Carousel Dots */}
+          {data.banners.length > 1 && (
+            <div className="absolute bottom-[140px] left-10 flex gap-2 z-10">
+              {data.banners.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentBannerIndex(idx)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${idx === currentBannerIndex ? 'bg-white scale-110' : 'bg-white/40'}`}
+                />
+              ))}
             </div>
-          </div>
+          )}
         </div>
 
         {/* Floating Category Card - Overlapping the Banner */}
@@ -328,19 +490,26 @@ export default function Home() {
 
       {/* Main Content Sections */}
       <div className="max-w-[1440px] mx-auto w-full px-4 md:px-6 py-12 md:py-20 space-y-16 md:space-y-24">
-        {/* Render CMS sections or fallback */}
-        {data.sections.length > 0 ? (
-          data.sections.map((section, sectionIdx) => (
-            <section key={section.id} className="space-y-8 md:space-y-12">
+        {loading ? (
+          <section className="space-y-8 md:space-y-12">
+            <div className="flex items-center gap-4 md:gap-6">
+              <div className="h-8 w-48 bg-black/[0.05] rounded-lg animate-pulse" />
+              <div className="h-[2px] w-full bg-black/[0.05]" />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {[1, 2, 3, 4].map((i) => renderSkeletonCard(i))}
+            </div>
+          </section>
+        ) : data.sections.length > 0 ? (
+          data.sections.filter(s => s.products.length > 0).map((section, sectionIdx) => (
+            <section key={section.id} className="space-y-6 md:space-y-10">
               <div className="flex items-center gap-4 md:gap-6">
-                <h2 className="text-[24px] md:text-[32px] font-sans font-[700] text-[#000] whitespace-nowrap">{section.title}</h2>
-                <div className="h-[2px] w-full bg-[#bf8345] opacity-80" />
+                <h2 className="text-[20px] md:text-[28px] font-sans font-[700] text-[#000] whitespace-nowrap uppercase tracking-wider">{section.title}</h2>
+                <div className="h-[1px] w-full bg-[#bf8345]/30" />
               </div>
 
-              <div className={sectionIdx === 1 ? 'relative' : ''}>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                  {section.products.map((p) => renderProductCard(p.product, sectionIdx))}
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+                {section.products.map((p) => renderProductCard(p.product, sectionIdx))}
               </div>
             </section>
           ))

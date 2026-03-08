@@ -8,7 +8,7 @@ router.get('/', requireAuth, async (req, res) => {
     try {
         const items = await prisma.cartItem.findMany({
             where: { userId: req.user.id },
-            include: { product: { include: { category: true } } },
+            include: { product: { include: { category: true, variants: true } } },
             orderBy: { createdAt: 'desc' }
         });
         res.json(items);
@@ -19,13 +19,14 @@ router.get('/', requireAuth, async (req, res) => {
 
 // Add to cart (or update qty if already exists)
 router.post('/', requireAuth, async (req, res) => {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, weight } = req.body;
     try {
         const existing = await prisma.cartItem.findUnique({
             where: {
-                userId_productId: {
+                userId_productId_weight: {
                     userId: req.user.id,
-                    productId: parseInt(productId)
+                    productId: parseInt(productId),
+                    weight: weight || '250g'
                 }
             }
         });
@@ -43,7 +44,8 @@ router.post('/', requireAuth, async (req, res) => {
             data: {
                 userId: req.user.id,
                 productId: parseInt(productId),
-                quantity: quantity ? parseInt(quantity) : 1
+                quantity: quantity ? parseInt(quantity) : 1,
+                weight: weight || '250g'
             },
             include: { product: true }
         });
