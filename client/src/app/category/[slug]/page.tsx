@@ -71,26 +71,22 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     ];
 
     const renderSkeletonCard = (i: number) => (
-        <div key={i} className="bg-white rounded-[32px] md:rounded-[40px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[460px] md:h-[500px] w-full flex-shrink-0 relative">
-            <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-9 md:h-9 bg-black/[0.03] rounded-full animate-pulse z-20" />
-            <div className="h-[180px] md:h-[200px] w-full bg-black/[0.05] relative overflow-hidden">
+        <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[420px] md:h-[460px] w-full flex-shrink-0 relative">
+            <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-black/[0.03] rounded-full animate-pulse z-30" />
+            <div className="h-[40%] w-full bg-black/[0.05] relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
             </div>
-            <div className="px-5 md:px-8 pb-4 pt-4 md:pt-5 text-center flex-1 flex flex-col overflow-hidden">
-                <div className="h-[52px] md:h-[64px] flex flex-col justify-center items-center">
-                    <div className="h-5 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
-                    <div className="h-3 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
+            <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
+                <div className="h-[56px] md:h-[68px] flex flex-col justify-center items-center">
+                    <div className="h-4 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
+                    <div className="h-4 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
                 </div>
-                <div className="h-[32px] md:h-[40px] flex flex-col justify-center items-center mb-2">
-                    <div className="h-2 w-full bg-black/[0.05] rounded-full animate-pulse mb-1.5" />
-                    <div className="h-2 w-2/3 bg-black/[0.05] rounded-full animate-pulse" />
-                </div>
-                <div className="h-[28px] md:h-[32px] bg-black/[0.05] rounded-full animate-pulse mb-2 mx-auto w-24" />
-                <div className="flex justify-center gap-2 mt-auto h-[42px] md:h-[50px]">
-                    <div className="w-24 h-full bg-black/[0.05] rounded-[10px] animate-pulse" />
+                <div className="h-[28px] md:h-[32px] bg-black/[0.05] rounded-full animate-pulse mx-auto w-24" />
+                <div className="flex justify-center gap-2 h-[38px] md:h-[46px]">
+                    <div className="w-20 md:w-24 h-full bg-black/[0.05] rounded-[10px] animate-pulse" />
                     <div className="flex-1 h-full bg-black/[0.05] rounded-[10px] animate-pulse" />
                 </div>
-                <div className="flex justify-center gap-1.5 md:gap-2 mt-3 h-[32px] md:h-[36px] flex-shrink-0">
+                <div className="flex justify-center gap-1 mt-3 h-[28px] md:h-[32px]">
                     {[1, 2, 3].map(w => (
                         <div key={w} className="flex-1 h-full bg-black/[0.03] rounded-[8px] animate-pulse" />
                     ))}

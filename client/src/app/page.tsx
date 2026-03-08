@@ -277,7 +277,7 @@ export default function Home() {
     const shadowLgColor = isGreen ? 'shadow-green-100' : 'shadow-orange-50';
 
     return (
-      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
+      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[420px] md:h-[460px] w-full flex-shrink-0 relative">
         <button
           className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
           onClick={(e) => {
@@ -288,7 +288,7 @@ export default function Home() {
         >
           <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isInWishlist(i) ? 'fill-red-500 text-red-500' : 'text-black/30 group-heart:text-red-400'}`} />
         </button>
-        <Link href="/product/1" className="h-[140px] md:h-[160px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
+        <Link href="/product/1" className="h-[40%] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src="/assets/image 53.png"
             alt="Magaya"
@@ -296,14 +296,14 @@ export default function Home() {
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
         </Link>
-        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
           <Link href="/product/1" className="flex flex-col flex-shrink-0">
             <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
               <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">Magaya</h3>
               <p className="text-[10px] md:text-[12px] text-black/40 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">Sun dried Mango pickle prepared with traditional family recipe</p>
             </div>
           </Link>
-          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 items-center flex-shrink-0 mt-2 mb-2 relative z-30">
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 items-center flex-shrink-0 relative z-30">
             <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-[#3a2212]/70 bg-black/5 px-0.5`}>₹400/250g</button>
             <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-[#3a2212]/70 bg-black/5 px-0.5`}>₹750/500g</button>
             <button className={`h-full border-[1px] border-dashed ${borderColor} rounded-[8px] md:rounded-[10px] text-[8px] md:text-[10px] font-[700] text-white ${shadowColor} px-0.5`} style={{ backgroundColor: accentColor }}>₹1400/1KG</button>
