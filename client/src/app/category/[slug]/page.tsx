@@ -256,7 +256,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     };
 
                                     return (
-                                        <div key={p.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group/card hover:custom-shadow-xl transition-all duration-500 h-[410px] md:h-[450px] flex flex-col relative shrink-0">
+                                        <div key={p.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group/card hover:custom-shadow-xl transition-all duration-500 h-[420px] md:h-[460px] flex flex-col relative shrink-0">
                                             <button
                                                 className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
                                                 onClick={(e) => {
@@ -265,9 +265,9 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     toggleWishlist(p.id);
                                                 }}
                                             >
-                                                <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isInWishlist(p.id) ? 'fill-red-500 text-red-500' : 'text-black/30 group-hover/heart:text-red-400'}`} />
+                                                <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isInWishlist(p.id) ? 'fill-red-500 text-red-500' : 'text-black/30 group-heart:text-red-400'}`} />
                                             </button>
-                                            <Link href={`/product/${p.id}`} className="h-[140px] md:h-[160px] w-full overflow-hidden relative block flex-shrink-0 bg-black/[0.03]">
+                                            <Link href={`/product/${p.id}`} className="h-[40%] w-full overflow-hidden relative block flex-shrink-0 bg-black/[0.03]">
                                                 <img
                                                     src={p.imageUrl || "/assets/image 53.png"}
                                                     className={`w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-700 ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
@@ -282,7 +282,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     </div>
                                                 )}
                                             </Link>
-                                            <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+                                            <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
                                                 <Link href={`/product/${p.id}`} className="flex flex-col flex-shrink-0">
                                                     <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
                                                         <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{p.name}</h3>
@@ -292,13 +292,13 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                     </div>
                                                 </Link>
 
-                                                <div className="h-[28px] md:h-[32px] flex items-center justify-center flex-shrink-0 mt-1">
-                                                    <span className="text-[17px] md:text-[20px] font-[800] text-[#3a2212]">₹{currentPrice.toFixed(0)}</span>
-                                                    <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ {state.weight}</span>
-                                                </div>
+                                                <div className="w-full">
+                                                    <div className="h-[28px] md:h-[32px] flex items-center justify-center flex-shrink-0">
+                                                        <span className="text-[17px] md:text-[20px] font-[800] text-[#3a2212]">₹{currentPrice.toFixed(0)}</span>
+                                                        <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ {state.weight}</span>
+                                                    </div>
 
-                                                <div className="mt-auto">
-                                                    <div className="flex justify-center gap-2 h-[38px] md:h-[46px] relative z-30 flex-shrink-0">
+                                                    <div className="flex justify-center gap-2 h-[38px] md:h-[46px] relative z-30 flex-shrink-0 mt-3">
                                                         <div className={`flex items-center bg-[#fdfaf5] rounded-xl border border-black/5 h-full px-1 transition-colors ${isOutOfStock ? 'opacity-30 pointer-events-none' : ''}`}>
                                                             <button
                                                                 className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
@@ -338,7 +338,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                                         </button>
                                                     </div>
 
-                                                    <div className="flex justify-center gap-1 mt-2 h-[28px] md:h-[32px] flex-shrink-0 relative z-30">
+                                                    <div className="flex justify-center gap-1 mt-3 h-[28px] md:h-[32px] flex-shrink-0 relative z-30">
                                                         {['250g', '500g', '1KG'].map((w: string) => {
                                                             const v = p.variants?.find((v: Variant) => v.weight === w);
                                                             const vStock = v ? v.stock : p.stock;

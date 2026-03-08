@@ -167,7 +167,7 @@ export default function Home() {
     };
 
     return (
-      <div key={product.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
+      <div key={product.id} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 group hover:custom-shadow-lg transition-all duration-300 flex flex-col h-[420px] md:h-[460px] w-full flex-shrink-0 relative">
         <button
           className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center transition-all border border-black/5 z-30 group/heart"
           onClick={(e) => {
@@ -178,7 +178,7 @@ export default function Home() {
         >
           <Heart className={`w-3.5 h-3.5 md:w-4.5 md:h-4.5 transition-colors ${isWishlisted ? 'fill-red-500 text-red-500' : 'text-black/30 group-heart:text-red-400'}`} />
         </button>
-        <Link href={`/product/${product.id}`} className="h-[140px] md:h-[160px] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
+        <Link href={`/product/${product.id}`} className="h-[40%] w-full overflow-hidden flex-shrink-0 bg-black/[0.03] relative block">
           <img
             src={product.imageUrl || '/assets/image 53.png'}
             alt={product.name}
@@ -193,7 +193,7 @@ export default function Home() {
             </div>
           )}
         </Link>
-        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
           <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
             <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
               <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{product.name}</h3>
@@ -202,14 +202,16 @@ export default function Home() {
               </p>
             </div>
           </Link>
-          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 flex-shrink-0 mt-2 mb-2 relative z-30">
+
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 flex-shrink-0 relative z-30">
             {renderVariantButton('250g')}
             {renderVariantButton('500g')}
             {renderVariantButton('1KG')}
           </div>
-          <div className="flex-1 flex flex-col justify-end">
+
+          <div className="relative z-30 w-full">
             {cartQuantities[product.id] ? (
-              <div className="flex items-center justify-center h-[38px] md:h-[46px] flex-shrink-0 relative z-30" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-center h-[38px] md:h-[46px] w-full" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center justify-between bg-white rounded-xl border-2 border-[#15a31a] h-full px-1 gap-1 w-full max-w-[120px] md:max-w-[150px] mx-auto">
                   <button
                     onClick={(e) => handleCardQuantityChange(e, product, -1)}
@@ -231,7 +233,7 @@ export default function Home() {
               <button
                 onClick={(e) => handleAddToCart(e, product)}
                 disabled={isOutOfStock}
-                className={`w-full h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} relative z-30 active:scale-[0.98] ${isOutOfStock ? 'grayscale opacity-50 cursor-not-allowed shadow-none' : ''}`}
+                className={`w-full h-[38px] md:h-[46px] flex items-center justify-center rounded-[10px] md:rounded-[12px] text-white text-[11px] md:text-[13px] font-[800] tracking-[0.02em] uppercase transition-all shadow-md ${shadowLgColor} active:scale-[0.98] ${isOutOfStock ? 'grayscale opacity-50 cursor-not-allowed shadow-none' : ''}`}
                 style={{ backgroundColor: isOutOfStock ? '#ccc' : accentColor }}
                 onMouseEnter={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = hoverColor)}
                 onMouseLeave={(e) => !isOutOfStock && (e.currentTarget.style.backgroundColor = accentColor)}
@@ -247,20 +249,20 @@ export default function Home() {
 
   const renderSkeletonCard = (i: number) => {
     return (
-      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[410px] md:h-[450px] w-full flex-shrink-0 relative">
+      <div key={i} className="bg-white rounded-[24px] md:rounded-[32px] overflow-hidden custom-shadow-md border border-black/5 flex flex-col h-[420px] md:h-[460px] w-full flex-shrink-0 relative">
         <div className="absolute top-3 right-3 md:top-4 md:right-4 w-7 h-7 md:w-8 md:h-8 bg-black/[0.03] rounded-full animate-pulse z-30" />
-        <div className="h-[140px] md:h-[160px] w-full bg-black/[0.05] relative overflow-hidden">
+        <div className="h-[40%] w-full bg-black/[0.05] relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
         </div>
-        <div className="px-4 md:px-6 pb-4 pt-4 text-center flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
           <div className="h-[56px] md:h-[68px] flex flex-col justify-center items-center">
             <div className="h-4 w-3/4 bg-black/[0.05] rounded-md animate-pulse mb-2" />
             <div className="h-4 w-1/2 bg-black/[0.05] rounded-md animate-pulse" />
           </div>
-          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5 mt-2 mb-2">
+          <div className="h-[34px] md:h-[42px] grid grid-cols-3 gap-1 md:gap-1.5">
             {[1, 2, 3].map(j => <div key={j} className="h-full bg-black/[0.03] rounded-[8px] animate-pulse" />)}
           </div>
-          <div className="mt-auto h-[38px] md:h-[46px] w-full bg-black/[0.05] rounded-[10px] md:rounded-[12px] animate-pulse" />
+          <div className="h-[38px] md:h-[46px] w-full bg-black/[0.05] rounded-[10px] md:rounded-[12px] animate-pulse" />
         </div>
       </div>
     );
