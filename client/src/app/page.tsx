@@ -402,9 +402,9 @@ export default function Home() {
       </section>
 
       {/* Mobile Hero & Categories Overlap Section */}
-      <section className="lg:hidden relative w-full bg-[#fdfaf5]">
-        {/* Banner Area */}
-        <div className="relative h-[65vh] min-h-[500px] w-full">
+      <section className="lg:hidden relative w-full bg-[#fdfaf5] overflow-hidden">
+        {/* Banner Area - Using 4:5 Aspect Ratio for the best mobile display */}
+        <div className="relative aspect-[4/5] w-full">
           {data.banners.length > 0 ? (
             data.banners.map((banner, idx) => (
               <div
@@ -414,17 +414,38 @@ export default function Home() {
                 <img
                   src={banner.imageUrl}
                   alt={banner.title || 'Hero'}
-                  className="w-full h-full object-cover brightness-[0.9]"
+                  className="w-full h-full object-cover object-center"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
-                  {banner.subtitle && <p className="text-white text-[16px] font-serif italic mb-2 drop-shadow-md">{banner.subtitle}</p>}
-                  {banner.title && <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">{banner.title}</h1>}
-                  {banner.ctaText && (
-                    <Link href={banner.ctaLink || '#'} className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
-                      {banner.ctaText}
-                    </Link>
+                {/* Modern UI Trick: Floating Glassmorphism Card for Content */}
+                <div className="absolute inset-x-4 bottom-6 z-20">
+                  <div className="bg-black/30 backdrop-blur-xl rounded-[28px] p-6 border border-white/20 shadow-2xl">
+                    <div className="space-y-4">
+                      <div>
+                        {banner.subtitle && <p className="text-[#bf8345] text-[12px] font-[800] uppercase tracking-[0.2em] mb-1 drop-shadow-sm">{banner.subtitle}</p>}
+                        {banner.title && <h1 className="text-white text-[28px] font-serif font-[700] leading-[1.1] drop-shadow-lg">{banner.title}</h1>}
+                      </div>
+                      {banner.ctaText && (
+                        <Link href={banner.ctaLink || '#'} className="inline-flex items-center justify-center bg-[#28a745] hover:bg-[#218838] text-white px-7 py-3 rounded-[12px] font-[800] text-[13px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-full">
+                          {banner.ctaText}
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Indicator Dots inside the card-area for better visibility */}
+                  {data.banners.length > 1 && (
+                    <div className="flex justify-center gap-2 mt-4">
+                      {data.banners.map((_, i) => (
+                        <div
+                          key={i}
+                          className={`h-1.5 rounded-full transition-all duration-300 ${i === currentBannerIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/30'}`}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
+                {/* Soft bottom vignette to ground the card */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
               </div>
             ))
           ) : (
