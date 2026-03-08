@@ -70,16 +70,25 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         setLoading(true);
         setError(null);
 
+        const filteredVariants = variants.filter((v: any) => v.price && v.stock);
+        const totalStock = filteredVariants.reduce((sum: number, v: any) => sum + parseInt(v.stock || 0), 0);
+        const basePrice = filteredVariants.length > 0 ? filteredVariants[0].price : formData.price;
+
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-            if (value) data.append(key, value);
+            if (key === 'stock') {
+                data.append('stock', totalStock.toString());
+            } else if (key === 'price') {
+                data.append('price', basePrice);
+            } else if (value) {
+                data.append(key, value);
+            }
         });
+
         if (image) {
             data.append('image', image);
         }
 
-        // Add variants
-        const filteredVariants = variants.filter((v: any) => v.price && v.stock);
         data.append('variants', JSON.stringify(filteredVariants));
 
         try {
@@ -139,7 +148,7 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 md:col-span-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Category</label>
                             <select
                                 required
@@ -153,19 +162,6 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                                     <option key={cat.id} value={cat.id}>{cat.title}</option>
                                 ))}
                             </select>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Overall Stock (Total)</label>
-                            <input
-                                required
-                                type="number"
-                                name="stock"
-                                value={formData.stock}
-                                onChange={handleChange}
-                                placeholder="100"
-                                className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900"
-                            />
                         </div>
 
                         <div className="md:col-span-2 p-6 bg-slate-50 rounded-3xl space-y-4">

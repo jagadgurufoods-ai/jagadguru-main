@@ -353,7 +353,7 @@ export default function Home() {
               />
               <div className="absolute inset-0 bg-black/20 flex flex-col justify-center px-24">
                 <div className="max-w-[1440px] mx-auto w-full">
-                  {banner.subtitle && <p className="text-white text-[20px] font-serif italic mb-2 drop-shadow-lg">{banner.subtitle}</p>}
+                  {banner.subtitle && <p className="text-white text-[20px] font-serif mb-2 drop-shadow-lg">{banner.subtitle}</p>}
                   {banner.title && <h1 className="text-white text-[64px] font-serif font-[700] leading-[1.1] mb-8 drop-shadow-lg max-w-2xl">{banner.title}</h1>}
                   {banner.ctaText && (
                     <Link href={banner.ctaLink || '#'} className="bg-[#28a745] hover:bg-[#218838] text-white px-10 py-4 rounded-[12px] font-[800] text-[16px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-fit inline-block">
