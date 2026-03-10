@@ -19,12 +19,12 @@ export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-ma
   return (
     <div className="w-full max-w-7xl mx-auto py-12 px-4 md:px-8 font-sans text-slate-800 bg-[#fdfaf5]">
 
-      <h2 className="text-2xl font-bold mb-8 text-[#3d3329]">ingredients</h2>
+      <h2 className="text-2xl font-bold mb-8 text-[#3d3329]">Ingredients</h2>
 
       <div className="flex flex-col lg:flex-row items-stretch gap-8 relative">
 
         {/* Left List */}
-        <div className="w-full lg:w-1/4 shrink-0 flex flex-col justify-start relative z-10">
+        <div className="w-full lg:w-[20%] shrink-0 flex flex-col justify-start relative z-10">
 
           <div className="absolute right-0 top-0 bottom-0 w-px bg-[#d8cbb5]/50"></div>
 
@@ -33,7 +33,7 @@ export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-ma
               <li key={spice.id}>
                 <button
                   onClick={() => setSelectedSpice(spice)}
-                  className={`w-[110%] flex items-center gap-4 py-3 px-4 transition-colors ${selectedSpice?.id === spice.id
+                  className={`w-full lg:w-[110%] flex items-center gap-4 py-3 px-4 transition-colors ${selectedSpice?.id === spice.id
                     ? 'bg-[#f5ebd1] font-bold text-[#3d3329]'
                     : 'bg-transparent font-medium text-[#5c5042] hover:bg-[#f5ebd1]/30'
                     }`}
@@ -56,7 +56,7 @@ export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-ma
         </div>
 
         {/* Center Text Details */}
-        <div className="w-full lg:w-1/4 shrink-0 mt-8 lg:mt-0 transition-opacity duration-300 relative z-10">
+        <div className="w-full lg:w-[30%] shrink-0 mt-8 lg:mt-0 transition-opacity duration-300 relative z-10 lg:pl-8">
           {selectedSpice ? (
             <div className="pr-2">
               <h3 className="text-[16px] font-bold text-[#3d3329] mb-1">{selectedSpice.name}</h3>
@@ -71,10 +71,10 @@ export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-ma
         </div>
 
         {/* Right Map */}
-        <div className="w-full lg:w-2/4 flex items-center justify-center relative mt-8 lg:mt-0 pointer-events-none">
+        <div className="w-full lg:flex-1 flex items-center justify-center relative mt-8 lg:mt-0 pointer-events-none">
 
-          {/* We use scale-[1.20] and origin-right/center so it visually scales up 20% without breaking the grid flex layout */}
-          <div className="relative inline-block w-full max-w-full flex items-center justify-center transform scale-[1.20] origin-center lg:origin-right pointer-events-auto overflow-visible">
+          {/* Map container - removed scaling hack that caused overlapping */}
+          <div className="relative inline-block w-full max-w-full flex items-center justify-center pointer-events-auto">
 
             <img
               src={mapImage}
