@@ -19,7 +19,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const { slug } = use(params);
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
-    const [priceRange, setPriceRange] = useState(1000);
+    const [priceRange, setPriceRange] = useState(2500);
+    const [spiceLevel, setSpiceLevel] = useState<number>(5);
+    const [sourLevel, setSourLevel] = useState<number>(5);
+    const [tangyLevel, setTangyLevel] = useState<number>(5);
+    const [sweetLevel, setSweetLevel] = useState<number>(5);
     const [categories, setCategories] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
     const [currentCategory, setCurrentCategory] = useState<any>(null);
@@ -116,55 +120,97 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                 <div className="flex flex-col lg:flex-row">
                     {/* Left Sidebar */}
                     <aside className="hidden lg:block w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20 shrink-0">
-                        <div>
-                            <h2 className="text-[20px] font-serif font-[700] mb-8 text-[#3a2212]">Categories</h2>
-                            <div className="space-y-6">
-                                {categories.map((cat) => (
-                                    <div key={cat.id} className="space-y-2">
-                                        <div
-                                            onClick={() => {
-                                                if (expandedCategory === cat.id) {
-                                                    setExpandedCategory(null);
-                                                } else {
-                                                    setExpandedCategory(cat.id);
-                                                    if (!categoryProducts[cat.id]) {
-                                                        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
-                                                        fetch(`${API_URL}/products?categoryId=${cat.id}`)
-                                                            .then(res => res.json())
-                                                            .then(data => setCategoryProducts(prev => ({ ...prev, [cat.id]: data })));
-                                                    }
-                                                }
-                                            }}
-                                            className="flex justify-between items-center group cursor-pointer"
-                                        >
-                                            <span className={`text-[19px] font-[800] ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/60 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
-                                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${expandedCategory === cat.id ? 'rotate-180' : ''} ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]/60'}`} />
-                                        </div>
-                                        <div className={`overflow-hidden transition-all duration-300 ${expandedCategory === cat.id ? 'max-h-[800px] opacity-100 pt-3 pb-2' : 'max-h-0 opacity-0'}`}>
-                                            <div className="pl-4 border-l-2 border-[#bf8345]/20 space-y-4">
-                                                {!categoryProducts[cat.id] ? (
-                                                    <div className="text-[13px] text-black/40 italic font-[500]">Loading...</div>
-                                                ) : categoryProducts[cat.id].length > 0 ? (
-                                                    categoryProducts[cat.id].map(p => (
-                                                        <Link key={p.id} href={`/product/${p.id}`} className="block text-[14px] font-[600] text-[#3a2212]/50 hover:text-[#bf8345] truncate transition-colors">
-                                                            {p.name}
-                                                        </Link>
-                                                    ))
-                                                ) : (
-                                                    <div className="text-[13px] text-black/40 italic font-[500]">No products found</div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
                         <div className="space-y-8">
                             <h2 className="text-[18px] font-serif font-[700]">Filter By</h2>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center group cursor-pointer text-[#3a2212]/30">
-                                    <span className="text-[12px] font-[800] uppercase tracking-widest">No Active Filters</span>
+
+                            <div className="space-y-6">
+                                {/* Price Filter */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[14px] font-[800] text-[#3a2212]">Price</span>
+                                        <span className="text-[12px] font-[600] text-[#bf8345]">₹0 - ₹{priceRange}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="0"
+                                        max="5000"
+                                        step="100"
+                                        value={priceRange}
+                                        onChange={(e) => setPriceRange(Number(e.target.value))}
+                                        className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
+                                    />
+                                </div>
+
+                                {/* Spice Level Filter */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[14px] font-[800] text-[#3a2212]">Spice Level</span>
+                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {spiceLevel}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="5"
+                                        step="1"
+                                        value={spiceLevel}
+                                        onChange={(e) => setSpiceLevel(Number(e.target.value))}
+                                        className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-black/40 font-[600]">
+                                        <span>Mild</span>
+                                        <span>Extreme</span>
+                                    </div>
+                                </div>
+
+                                {/* Sour Level Filter */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[14px] font-[800] text-[#3a2212]">Sour Level</span>
+                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {sourLevel}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="5"
+                                        step="1"
+                                        value={sourLevel}
+                                        onChange={(e) => setSourLevel(Number(e.target.value))}
+                                        className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
+                                    />
+                                </div>
+
+                                {/* Tangy Level Filter */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[14px] font-[800] text-[#3a2212]">Tangy Level</span>
+                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {tangyLevel}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="5"
+                                        step="1"
+                                        value={tangyLevel}
+                                        onChange={(e) => setTangyLevel(Number(e.target.value))}
+                                        className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
+                                    />
+                                </div>
+
+                                {/* Sweet Level Filter */}
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[14px] font-[800] text-[#3a2212]">Sweet Level</span>
+                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {sweetLevel}</span>
+                                    </div>
+                                    <input
+                                        type="range"
+                                        min="1"
+                                        max="5"
+                                        step="1"
+                                        value={sweetLevel}
+                                        onChange={(e) => setSweetLevel(Number(e.target.value))}
+                                        className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -257,7 +303,20 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-                                {products.map((p) => {
+                                {products.filter(p => {
+                                    // Custom Filtering Logics
+                                    if ((p.spiceLevel || 0) > spiceLevel) return false;
+                                    if ((p.sourLevel || 0) > sourLevel) return false;
+                                    if ((p.tangyLevel || 0) > tangyLevel) return false;
+                                    if ((p.sweetLevel || 0) > sweetLevel) return false;
+
+                                    const state = productStates[p.id] || { quantity: 1, weight: '250g' };
+                                    const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
+                                    const currentPrice = variant ? Number(variant.price) : Number(p.price);
+                                    if (currentPrice > priceRange) return false;
+
+                                    return true;
+                                }).map((p) => {
                                     const state = productStates[p.id] || { quantity: 1, weight: '250g' };
                                     const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
                                     const currentPrice = variant ? Number(variant.price) : Number(p.price);

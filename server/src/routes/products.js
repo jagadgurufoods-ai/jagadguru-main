@@ -55,6 +55,7 @@ router.post('/', requireAuth, requireAdmin, upload.fields([{ name: 'image', maxC
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
         ingredientsText, pairsWellWith, tasteMeter, heritageMapUrl: bodyHeritageMapUrl,
+        spiceLevel, sourLevel, tangyLevel, sweetLevel,
         variants, ingredients
     } = req.body;
 
@@ -86,6 +87,10 @@ router.post('/', requireAuth, requireAdmin, upload.fields([{ name: 'image', maxC
                 imageUrl,
                 pairsWellWith,
                 tasteMeter: tasteMeter ? parseInt(tasteMeter) : null,
+                spiceLevel: spiceLevel ? parseInt(spiceLevel) : null,
+                sourLevel: sourLevel ? parseInt(sourLevel) : null,
+                tangyLevel: tangyLevel ? parseInt(tangyLevel) : null,
+                sweetLevel: sweetLevel ? parseInt(sweetLevel) : null,
                 heritageMapUrl,
                 variants: {
                     create: parsedVariants.map(v => ({
@@ -123,6 +128,7 @@ router.put('/:id', requireAuth, requireAdmin, upload.fields([{ name: 'image', ma
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
         ingredientsText, pairsWellWith, tasteMeter, heritageMapUrl: bodyHeritageMapUrl,
+        spiceLevel, sourLevel, tangyLevel, sweetLevel,
         variants, ingredients
     } = req.body;
 
@@ -137,6 +143,12 @@ router.put('/:id', requireAuth, requireAdmin, upload.fields([{ name: 'image', ma
         if (quantity !== undefined) data.quantity = quantity ? parseFloat(quantity) : null;
         if (grandmasSays !== undefined) data.grandmasSays = grandmasSays;
         if (ingredientsText !== undefined) data.ingredientsText = ingredientsText;
+        if (pairsWellWith !== undefined) data.pairsWellWith = pairsWellWith;
+        if (tasteMeter !== undefined) data.tasteMeter = tasteMeter ? parseInt(tasteMeter) : null;
+        if (spiceLevel !== undefined) data.spiceLevel = spiceLevel ? parseInt(spiceLevel) : null;
+        if (sourLevel !== undefined) data.sourLevel = sourLevel ? parseInt(sourLevel) : null;
+        if (tangyLevel !== undefined) data.tangyLevel = tangyLevel ? parseInt(tangyLevel) : null;
+        if (sweetLevel !== undefined) data.sweetLevel = sweetLevel ? parseInt(sweetLevel) : null;
         if (bodyHeritageMapUrl !== undefined) data.heritageMapUrl = bodyHeritageMapUrl;
 
         if (req.files) {

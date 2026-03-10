@@ -64,16 +64,28 @@ export default function ProductDetail() {
             .then(data => {
                 setProduct(data);
                 setLoading(false);
-                if (data.pairsWellWith) {
-                    const pairIds = data.pairsWellWith.split(',').map((p: string) => parseInt(p.trim()));
-                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`)
-                        .then(res => res.json())
-                        .then((allData: any) => {
-                            if (allData.products) {
-                                setPairsProducts(allData.products.filter((p: any) => pairIds.includes(p.id)));
-                            }
-                        });
+
+                // For combos, default to the first variant's weight if available
+                if (data.category?.title?.toLowerCase() === 'combos' && data.variants?.length > 0) {
+                    setSelectedWeight(data.variants[0].weight);
                 }
+
+                // Handle You May Like randomization
+                fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`)
+                    .then(res => res.json())
+                    .then((allData: any) => {
+                        const products = Array.isArray(allData) ? allData : (allData.products || []);
+                        if (data.pairsWellWith) {
+                            const pairIds = data.pairsWellWith.split(',').map((p: string) => parseInt(p.trim()));
+                            setPairsProducts(products.filter((p: any) => pairIds.includes(p.id)));
+                        } else {
+                            // Pick 4 random products excluding current one
+                            const otherProducts = products.filter((p: any) => p.id !== data.id);
+                            // Fisher-Yates shuffle is better but simple sort-random is okay for small datasets
+                            const shuffled = [...otherProducts].sort(() => 0.5 - Math.random());
+                            setPairsProducts(shuffled.slice(0, 4));
+                        }
+                    });
             })
             .catch(err => {
                 setError(err.message);
@@ -231,27 +243,29 @@ export default function ProductDetail() {
                                     </button>
                                 </div>
 
-                                <div className="flex gap-2">
-                                    {['250g', '500g', '1KG'].map((w) => {
-                                        const variant = product.variants?.find(v => v.weight === w);
-                                        const variantStock = variant ? variant.stock : product.stock;
-                                        const variantOutOfStock = variantStock <= 0;
+                                {product.category?.title?.toLowerCase() !== 'combos' && (
+                                    <div className="flex gap-2">
+                                        {['250g', '500g', '1KG'].map((w) => {
+                                            const variant = product.variants?.find(v => v.weight === w);
+                                            const variantStock = variant ? variant.stock : product.stock;
+                                            const variantOutOfStock = variantStock <= 0;
 
-                                        return (
-                                            <button
-                                                key={w}
-                                                onClick={() => { setSelectedWeight(w); setQuantity(1); setAddedToCart(false); }}
-                                                className={`px-6 py-4 rounded-[12px] text-[13px] font-[800] transition-all border flex flex-col items-center justify-center gap-0.5 relative overflow-hidden ${selectedWeight === w
-                                                    ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
-                                                    : 'bg-white text-[#3a2212]/40 border-black/10 hover:border-black/20'
-                                                    } ${variantOutOfStock ? 'opacity-60 grayscale' : ''}`}
-                                            >
-                                                <span>{w}</span>
-                                                {variantOutOfStock && <span className="text-[7px] md:text-[8px] uppercase font-black text-red-500/80 tracking-tighter">No Stock</span>}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
+                                            return (
+                                                <button
+                                                    key={w}
+                                                    onClick={() => { setSelectedWeight(w); setQuantity(1); setAddedToCart(false); }}
+                                                    className={`px-6 py-4 rounded-[12px] text-[13px] font-[800] transition-all border flex flex-col items-center justify-center gap-0.5 relative overflow-hidden ${selectedWeight === w
+                                                        ? 'bg-[#3a2212] text-white border-[#3a2212] shadow-lg shadow-[#3a2212]/20'
+                                                        : 'bg-white text-[#3a2212]/40 border-black/10 hover:border-black/20'
+                                                        } ${variantOutOfStock ? 'opacity-60 grayscale' : ''}`}
+                                                >
+                                                    <span>{w}</span>
+                                                    {variantOutOfStock && <span className="text-[7px] md:text-[8px] uppercase font-black text-red-500/80 tracking-tighter">No Stock</span>}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
 
                             {addedToCart ? (
@@ -358,7 +372,7 @@ export default function ProductDetail() {
 
                                 <InteractiveSpiceMap
                                     spices={product.ingredients}
-                                    mapImage={product.heritageMapUrl || '/india-map.png'}
+                                    mapImage={product.heritageMapUrl || '/default-map.jpeg'}
                                 />
                             </div>
                         </section>
@@ -368,7 +382,7 @@ export default function ProductDetail() {
                     <section className="py-16 lg:py-24 px-6 sm:px-16 bg-[#f7f3ed] border-y border-black/5">
                         <div className="max-w-4xl mx-auto text-center space-y-8 lg:space-y-12">
                             <div className="space-y-4">
-                                <h2 className="text-[32px] sm:text-[44px] lg:text-[56px] font-serif font-[700] text-[#3a2212] tracking-tight">Grandma Says</h2>
+                                <h2 className="text-[32px] sm:text-[44px] lg:text-[56px] font-serif font-[700] text-[#3a2212] tracking-tight">Stories passed through generation</h2>
                                 <div className="h-[2px] w-24 bg-[#bf8345] mx-auto opacity-20" />
                             </div>
                             <p className="text-[16px] sm:text-[20px] text-black/60 leading-[1.8] sm:leading-[2] font-[500] font-sans italic opacity-80 whitespace-pre-wrap">

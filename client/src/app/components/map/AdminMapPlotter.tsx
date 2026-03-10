@@ -5,7 +5,7 @@ import { Spice } from './types';
 
 export default function AdminMapPlotter() {
   const [spices, setSpices] = useState<Spice[]>([]);
-  const [mapImage, setMapImage] = useState<string>('/india-map.png');
+  const [mapImage, setMapImage] = useState<string>('/default-map.jpeg');
 
   // Current edit state
   const [isEditing, setIsEditing] = useState(false);

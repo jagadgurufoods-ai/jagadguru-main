@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import ProductIngredientEditor from '../../components/map/ProductIngredientEditor';
+import { X, Search } from 'lucide-react';
 
 interface Category {
     id: number;
@@ -21,6 +22,7 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
     const [allProducts, setAllProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [formData, setFormData] = useState({
         name: initialData?.name || '',
@@ -32,6 +34,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         pairsWellWith: initialData?.pairsWellWith || '',
         ingredientsText: initialData?.ingredientsText || '',
         tasteMeter: initialData?.tasteMeter?.toString() || '3',
+        spiceLevel: initialData?.spiceLevel?.toString() || '3',
+        sourLevel: initialData?.sourLevel?.toString() || '3',
+        tangyLevel: initialData?.tangyLevel?.toString() || '3',
+        sweetLevel: initialData?.sweetLevel?.toString() || '3',
         heritageMapUrl: initialData?.heritageMapUrl || ''
     });
 
@@ -58,7 +64,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
 
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`)
             .then(res => res.json())
-            .then((data: any) => setAllProducts(data.products || []))
+            .then((data: any) => {
+                const products = Array.isArray(data) ? data : (data.products || []);
+                setAllProducts(products);
+            })
             .catch(err => console.error('Failed to fetch products:', err));
     }, []);
 
@@ -252,6 +261,70 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             </div>
                         </div>
 
+                        <div className="space-y-2 md:col-span-1">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Spice Level (1-5)</label>
+                            <div className="flex gap-2 sm:gap-4">
+                                {[1, 2, 3, 4, 5].map(level => (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, spiceLevel: level.toString() })}
+                                        className={`w-10 h-10 rounded-full font-bold transition-all ${formData.spiceLevel === level.toString() ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-1">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sour Level (1-5)</label>
+                            <div className="flex gap-2 sm:gap-4">
+                                {[1, 2, 3, 4, 5].map(level => (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, sourLevel: level.toString() })}
+                                        className={`w-10 h-10 rounded-full font-bold transition-all ${formData.sourLevel === level.toString() ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-1">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Tangy Level (1-5)</label>
+                            <div className="flex gap-2 sm:gap-4">
+                                {[1, 2, 3, 4, 5].map(level => (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, tangyLevel: level.toString() })}
+                                        className={`w-10 h-10 rounded-full font-bold transition-all ${formData.tangyLevel === level.toString() ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2 md:col-span-1">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sweet Level (1-5)</label>
+                            <div className="flex gap-2 sm:gap-4">
+                                {[1, 2, 3, 4, 5].map(level => (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFormData({ ...formData, sweetLevel: level.toString() })}
+                                        className={`w-10 h-10 rounded-full font-bold transition-all ${formData.sweetLevel === level.toString() ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-400'}`}
+                                    >
+                                        {level}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
                         <div className="space-y-2 md:col-span-2">
                             <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Description</label>
                             <textarea
@@ -315,20 +388,90 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             />
                         </div>
 
-                        <div className="space-y-2 md:col-span-2">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Pairs Well With</label>
-                            <select
-                                multiple
-                                name="pairsWellWith"
-                                value={formData.pairsWellWith ? formData.pairsWellWith.split(',') : []}
-                                onChange={handleChange}
-                                className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900 min-h-[120px]"
-                            >
-                                {allProducts.filter(p => !initialData || p.id !== initialData.id).map(p => (
-                                    <option key={p.id} value={p.id}>{p.name}</option>
-                                ))}
-                            </select>
-                            <p className="text-[10px] text-slate-400 font-medium ml-1">Hold Cmd/Ctrl to select multiple products.</p>
+                        <div className="space-y-4 md:col-span-2 p-6 bg-slate-50 rounded-[32px] border border-slate-100/50">
+                            <div className="flex justify-between items-center">
+                                <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Pairs Well With (Max 4)</label>
+                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border transition-colors ${(formData.pairsWellWith || '').split(',').filter(Boolean).length >= 4
+                                    ? 'bg-orange-50 text-orange-600 border-orange-100'
+                                    : 'bg-white text-slate-400 border-slate-200'
+                                    }`}>
+                                    {(formData.pairsWellWith || '').split(',').filter(Boolean).length} / 4 Selected
+                                </span>
+                            </div>
+
+                            <div className="relative group">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-green-500 transition-colors pointer-events-none">
+                                    <Search className="w-4 h-4" />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Search products to add..."
+                                    className="w-full bg-white border border-slate-200 rounded-2xl pl-11 pr-5 py-3.5 text-sm font-medium focus:ring-2 focus:ring-green-500 transition-all outline-none"
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    value={searchQuery}
+                                />
+                                {searchQuery && (
+                                    <div className="absolute top-full left-0 right-0 mt-3 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[60] max-h-60 overflow-y-auto p-2 space-y-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                                        {allProducts
+                                            .filter(p =>
+                                                p.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+                                                (!initialData || p.id !== initialData.id) &&
+                                                !(formData.pairsWellWith || '').split(',').includes(p.id.toString())
+                                            )
+                                            .map(p => (
+                                                <button
+                                                    key={p.id}
+                                                    type="button"
+                                                    disabled={(formData.pairsWellWith || '').split(',').filter(Boolean).length >= 4}
+                                                    onClick={() => {
+                                                        const current = (formData.pairsWellWith || '').split(',').filter(Boolean);
+                                                        if (current.length < 4) {
+                                                            setFormData({ ...formData, pairsWellWith: [...current, p.id.toString()].join(',') });
+                                                            setSearchQuery('');
+                                                        }
+                                                    }}
+                                                    className="w-full text-left px-4 py-3 hover:bg-slate-50 rounded-xl text-sm font-semibold flex justify-between items-center group disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                                >
+                                                    <span className="text-slate-700">{p.name}</span>
+                                                    <span className="text-[10px] bg-slate-100 px-2 py-1 rounded-lg group-hover:bg-green-100 group-hover:text-green-600 transition-colors uppercase tracking-widest font-black">Add</span>
+                                                </button>
+                                            ))}
+                                        {allProducts.filter(p => p.name.toLowerCase().includes(searchQuery.toLowerCase()) && (!initialData || p.id !== initialData.id)).length === 0 && (
+                                            <div className="flex flex-col items-center py-8 text-slate-400 gap-2">
+                                                <Search className="w-8 h-8 opacity-20" />
+                                                <p className="text-xs font-bold uppercase tracking-widest opacity-60">No products found</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 pt-2">
+                                {(formData.pairsWellWith || '').split(',').filter(Boolean).map((id: string) => {
+                                    const prod = allProducts.find(p => p.id.toString() === id);
+                                    if (!prod) return null;
+                                    return (
+                                        <div key={id} className="bg-white border border-slate-200 pl-4 pr-2 py-2 rounded-xl flex items-center gap-3 shadow-sm hover:border-red-100 hover:bg-red-50/30 transition-all group">
+                                            <span className="text-xs font-bold text-slate-700">{prod.name}</span>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const updated = (formData.pairsWellWith || '').split(',').filter(Boolean).filter((sid: string) => sid !== id);
+                                                    setFormData({ ...formData, pairsWellWith: updated.join(',') });
+                                                }}
+                                                className="w-6 h-6 rounded-lg flex items-center justify-center text-slate-300 hover:bg-red-100 hover:text-red-500 transition-all"
+                                            >
+                                                <X className="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    );
+                                })}
+                                {(!formData.pairsWellWith || formData.pairsWellWith.split(',').filter(Boolean).length === 0) && (
+                                    <div className="w-full py-4 text-center border border-dashed border-slate-200 rounded-2xl">
+                                        <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em]">No pairings selected</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2 md:col-span-2">

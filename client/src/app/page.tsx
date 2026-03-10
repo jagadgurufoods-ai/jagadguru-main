@@ -402,13 +402,16 @@ export default function Home() {
                 <div className="max-w-[1440px] mx-auto w-full">
                   {banner.subtitle && <p className="text-white text-[20px] font-serif mb-2 drop-shadow-lg">{banner.subtitle}</p>}
                   {banner.title && <h1 className="text-white text-[64px] font-serif font-[700] leading-[1.1] mb-8 drop-shadow-lg max-w-2xl">{banner.title}</h1>}
-                  {banner.ctaText && (
-                    <Link href={banner.ctaLink || '#'} className="bg-[#28a745] hover:bg-[#218838] text-white px-10 py-4 rounded-[12px] font-[800] text-[16px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-fit inline-block">
-                      {banner.ctaText}
-                    </Link>
-                  )}
                 </div>
               </div>
+              {/* CTA moved above dots */}
+              {banner.ctaText && (
+                <div className="absolute bottom-[180px] left-24 z-30">
+                  <Link href={banner.ctaLink || '#'} className="bg-[#28a745] hover:bg-[#218838] text-white px-10 py-4 rounded-[12px] font-[800] text-[16px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-xl w-fit inline-block">
+                    {banner.ctaText}
+                  </Link>
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -451,7 +454,7 @@ export default function Home() {
       {/* Mobile Hero & Categories Overlap Section */}
       <section className="lg:hidden relative w-full bg-[#fdfaf5]">
         {/* Banner Area */}
-        <div className="relative h-[65vh] min-h-[500px] w-full">
+        <div className="relative aspect-[4/5] w-full max-h-[80vh] overflow-hidden">
           {data.banners.length > 0 ? (
             data.banners.map((banner, idx) => (
               <div
@@ -466,12 +469,15 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex flex-col justify-center px-10 pb-32">
                   {banner.subtitle && <p className="text-white text-[16px] font-serif mb-2 drop-shadow-md">{banner.subtitle}</p>}
                   {banner.title && <h1 className="text-white text-[32px] md:text-[40px] font-serif font-[700] leading-[1.1] mb-6 drop-shadow-lg">{banner.title}</h1>}
-                  {banner.ctaText && (
+                </div>
+                {/* Mobile CTA moved above dots */}
+                {banner.ctaText && (
+                  <div className="absolute bottom-[190px] left-10 z-20">
                     <Link href={banner.ctaLink || '#'} className="w-fit bg-[#28a745] hover:bg-[#218838] text-white px-8 py-3 rounded-[12px] font-[800] text-[14px] uppercase tracking-[0.1em] transition-all active:scale-95 shadow-lg">
                       {banner.ctaText}
                     </Link>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             ))
           ) : (

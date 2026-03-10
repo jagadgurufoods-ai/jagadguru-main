@@ -12,7 +12,7 @@ interface ProductIngredientEditorProps {
 
 export default function ProductIngredientEditor({ ingredients, onChange, selectedMap }: ProductIngredientEditorProps) {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const mapImage = selectedMap || '/india-map.png';
+    const mapImage = selectedMap || '/default-map.jpeg';
     const imageRef = useRef<HTMLImageElement>(null);
 
     const addIngredient = () => {

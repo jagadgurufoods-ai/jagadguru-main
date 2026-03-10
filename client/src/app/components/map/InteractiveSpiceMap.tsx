@@ -6,7 +6,7 @@ import { Spice } from './types';
 // Default image to use if the user hasn't uploaded one for a pin
 const DEFAULT_CARD_IMAGE = 'https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&q=80&w=400';
 
-export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-map.png' }: { spices?: Spice[], mapImage?: string }) {
+export default function InteractiveSpiceMap({ spices = [], mapImage = '/default-map.jpeg' }: { spices?: Spice[], mapImage?: string }) {
   const [selectedSpice, setSelectedSpice] = useState<Spice | null>(spices[0] || null);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function InteractiveSpiceMap({ spices = [], mapImage = '/india-ma
   return (
     <div className="w-full max-w-7xl mx-auto py-12 px-4 md:px-8 font-sans text-slate-800 bg-[#fdfaf5]">
 
-      <h2 className="text-2xl font-bold mb-8 text-[#3d3329]">Ingredients</h2>
+
 
       <div className="flex flex-col lg:flex-row items-stretch gap-8 relative">
 
