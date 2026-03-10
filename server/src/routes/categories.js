@@ -30,4 +30,16 @@ router.post('/', async (req, res) => {
     }
 });
 
+// Delete category (Admin)
+router.delete('/:id', async (req, res) => {
+    try {
+        await prisma.category.delete({
+            where: { id: parseInt(req.params.id) }
+        });
+        res.json({ success: true, message: 'Category deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;

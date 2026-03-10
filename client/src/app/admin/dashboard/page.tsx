@@ -76,7 +76,14 @@ export default function AdminDashboard() {
     const headers = () => ({ Authorization: `Bearer ${token}` });
 
     const fetchProducts = () => {
-        fetch(`${API_URL}/products`).then(r => r.json()).then(d => Array.isArray(d) ? setProducts(d) : setProducts([])).catch(console.error);
+        fetch(`${API_URL}/products`)
+            .then(r => r.json())
+            .then(d => {
+                const prods = Array.isArray(d) ? d : (d.products || []);
+                const sorted = [...prods].sort((a: any, b: any) => a.name.localeCompare(b.name));
+                setProducts(sorted);
+            })
+            .catch(console.error);
     };
     const fetchCategories = () => {
         fetch(`${API_URL}/categories`).then(r => r.json()).then(d => Array.isArray(d) ? setCategories(d) : setCategories([])).catch(console.error);
@@ -100,6 +107,13 @@ export default function AdminDashboard() {
     const deleteProduct = async (id: number) => {
         if (!confirm('Delete this product?')) return;
         await fetch(`${API_URL}/products/${id}`, { method: 'DELETE', headers: headers() });
+        fetchProducts();
+    };
+
+    const deleteCategory = async (id: number) => {
+        if (!confirm('Delete this category? This will also delete all products associated with it.')) return;
+        await fetch(`${API_URL}/categories/${id}`, { method: 'DELETE', headers: headers() });
+        fetchCategories();
         fetchProducts();
     };
 
@@ -363,18 +377,22 @@ export default function AdminDashboard() {
                                 <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Category Name</th>
                                 <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Description</th>
                                 <th className="px-8 py-5 text-left text-xs font-black text-slate-400 uppercase tracking-widest">Products</th>
+                                <th className="px-8 py-5 text-right text-xs font-black text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-slate-100">
                             {categories.map(category => (
-                                <tr key={category.id} className="hover:bg-slate-50/50 transition-colors">
+                                <tr key={category.id} className="hover:bg-slate-50/50 transition-colors group">
                                     <td className="px-8 py-5 text-sm font-bold text-slate-900">{category.title}</td>
                                     <td className="px-8 py-5 text-sm text-slate-500 max-w-xs truncate">{category.description || 'No description'}</td>
                                     <td className="px-8 py-5 text-sm font-black text-slate-900">{category._count?.products || 0}</td>
+                                    <td className="px-8 py-5 whitespace-nowrap text-right text-sm font-bold flex justify-end gap-4">
+                                        <button onClick={() => deleteCategory(category.id)} className="text-slate-400 hover:text-red-600 transition-colors">Delete</button>
+                                    </td>
                                 </tr>
                             ))}
                             {categories.length === 0 && (
-                                <tr><td colSpan={3} className="px-8 py-16 text-center text-slate-400 font-medium italic">No categories found...</td></tr>
+                                <tr><td colSpan={4} className="px-8 py-16 text-center text-slate-400 font-medium italic">No categories found...</td></tr>
                             )}
                         </tbody>
                     </table>

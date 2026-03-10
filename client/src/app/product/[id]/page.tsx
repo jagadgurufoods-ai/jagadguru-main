@@ -5,6 +5,7 @@ import { Share2, Heart, Star, Minus, Plus, ShoppingCart, Info, ArrowRight, Loade
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useCart } from '../../context/CartContext';
+import InteractiveSpiceMap from '../../components/map/InteractiveSpiceMap';
 
 interface Variant {
     id: number;
@@ -21,7 +22,8 @@ interface Product {
     originalPrice?: number;
     imageUrl?: string;
     grandmasSays?: string;
-    ingredients?: string;
+    ingredientsText?: string;
+    ingredients?: any[];
     pairsWellWith?: string;
     tasteMeter?: number;
     quantity?: number;
@@ -43,6 +45,7 @@ export default function ProductDetail() {
     const [addingToCart, setAddingToCart] = useState(false);
     const [addedToCart, setAddedToCart] = useState(false);
     const [showToast, setShowToast] = useState(false);
+    const [pairsProducts, setPairsProducts] = useState<any[]>([]);
 
     const currentVariant = product?.variants?.find(v => v.weight === selectedWeight);
     const currentPrice = currentVariant ? Number(currentVariant.price) : Number(product?.price || 0);
@@ -60,6 +63,16 @@ export default function ProductDetail() {
             .then(data => {
                 setProduct(data);
                 setLoading(false);
+                if (data.pairsWellWith) {
+                    const pairIds = data.pairsWellWith.split(',').map((p: string) => parseInt(p.trim()));
+                    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`)
+                        .then(res => res.json())
+                        .then((allData: any) => {
+                            if (allData.products) {
+                                setPairsProducts(allData.products.filter((p: any) => pairIds.includes(p.id)));
+                            }
+                        });
+                }
             })
             .catch(err => {
                 setError(err.message);
@@ -345,10 +358,10 @@ export default function ProductDetail() {
                                     <p className="text-[17px] text-black/50 leading-[1.8] font-[500] max-w-[500px]">
                                         Jagadguru Foods traces its roots to the fertile lands of South India, where generations of farmers have cultivated spices and ingredients with unparalleled dedication.
                                     </p>
-                                    {product.ingredients && (
+                                    {product.ingredientsText && (
                                         <div className="space-y-4">
                                             <h4 className="text-[13px] font-[800] tracking-[0.2em] text-[#bf8345] uppercase">Key Ingredients</h4>
-                                            <p className="text-[15px] text-black/60 leading-relaxed max-w-[500px]">{product.ingredients}</p>
+                                            <p className="text-[15px] text-black/60 leading-relaxed max-w-[500px]">{product.ingredientsText}</p>
                                         </div>
                                     )}
                                 </div>
@@ -392,6 +405,60 @@ export default function ProductDetail() {
                             </p>
                         </div>
                     </section>
+
+                    {/* Interactive Heritage Map Section */}
+                    {product.ingredients && product.ingredients.length > 0 && (
+                        <section className="bg-[#fdfaf5] border-b border-black/5">
+                            <div className="max-w-7xl mx-auto">
+                                <InteractiveSpiceMap spices={product.ingredients} />
+                            </div>
+                        </section>
+                    )}
+
+                    {/* You May Like Section */}
+                    {pairsProducts.length > 0 && (
+                        <section className="py-16 lg:py-24 px-6 sm:px-16 bg-[#fcf9f4]">
+                            <div className="max-w-[1440px] mx-auto text-left space-y-8">
+                                <h2 className="text-[32px] sm:text-[40px] font-serif font-[400] text-[#3a2212] tracking-tight text-center md:text-left">You May Like</h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {pairsProducts.map((p) => {
+                                        const pairPrice = p.variants?.length ? p.variants[0].price : p.price;
+                                        return (
+                                            <div key={p.id} className="bg-white rounded-[24px] overflow-hidden shadow-sm border border-black/5 hover:shadow-lg transition-all duration-300 flex flex-col group relative">
+                                                <Link href={`/product/${p.id}`} className="block relative overflow-hidden bg-black/5 p-4 m-2 rounded-[16px]">
+                                                    <div className="aspect-square relative overflow-hidden rounded-[12px]">
+                                                        <img src={p.imageUrl || '/assets/image 53.png'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={p.name} />
+                                                    </div>
+                                                </Link>
+                                                <div className="p-5 pt-2 flex-grow flex flex-col justify-between space-y-4">
+                                                    <Link href={`/product/${p.id}`} className="block">
+                                                        <h3 className="font-serif font-[600] text-[#3a2212] text-[18px] leading-tight group-hover:text-[#bf8345] transition-colors line-clamp-2">
+                                                            {p.name ? p.name.charAt(0).toUpperCase() + p.name.slice(1).toLowerCase() : ''}
+                                                        </h3>
+                                                        <p className="text-[10px] text-black/40 font-[700] uppercase tracking-widest mt-1 truncate">{p.category?.title || 'PRODUCTS'}</p>
+                                                    </Link>
+                                                    <div className="flex items-center justify-between mt-auto">
+                                                        <span className="font-sans font-[800] text-[18px] text-[#3a2212]">₹{Number(pairPrice).toFixed(2)}</span>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.preventDefault();
+                                                                addToCart({ id: p.id, name: p.name, price: Number(pairPrice), imageUrl: p.imageUrl, stock: p.stock }, 1, '250g');
+                                                                setShowToast(true);
+                                                                setTimeout(() => setShowToast(false), 3000);
+                                                            }}
+                                                            className="w-8 h-8 rounded-full bg-[#bf8345] text-white flex items-center justify-center hover:bg-[#a6713a] transition-colors shadow-md"
+                                                        >
+                                                            <ShoppingCart className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </section>
+                    )}
                 </main>
             </div>
 

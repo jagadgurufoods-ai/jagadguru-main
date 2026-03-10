@@ -28,6 +28,8 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const [productStates, setProductStates] = useState<{ [key: number]: { quantity: number, weight: string } }>({});
     const [showToast, setShowToast] = useState(false);
     const [toastProduct, setToastProduct] = useState<any>(null);
+    const [expandedCategory, setExpandedCategory] = useState<number | null>(null);
+    const [categoryProducts, setCategoryProducts] = useState<Record<number, any[]>>({});
 
     useEffect(() => {
         const fetchData = async () => {
@@ -115,17 +117,44 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                     {/* Left Sidebar */}
                     <aside className="hidden lg:block w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20 shrink-0">
                         <div>
-                            <h2 className="text-[20px] font-serif font-[700] mb-8">Categories</h2>
+                            <h2 className="text-[20px] font-serif font-[700] mb-8 text-[#3a2212]">Categories</h2>
                             <div className="space-y-6">
                                 {categories.map((cat) => (
-                                    <div key={cat.id} className="space-y-4">
-                                        <Link
-                                            href={`/category/${cat.slug}`}
+                                    <div key={cat.id} className="space-y-2">
+                                        <div
+                                            onClick={() => {
+                                                if (expandedCategory === cat.id) {
+                                                    setExpandedCategory(null);
+                                                } else {
+                                                    setExpandedCategory(cat.id);
+                                                    if (!categoryProducts[cat.id]) {
+                                                        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+                                                        fetch(`${API_URL}/products?categoryId=${cat.id}`)
+                                                            .then(res => res.json())
+                                                            .then(data => setCategoryProducts(prev => ({ ...prev, [cat.id]: data })));
+                                                    }
+                                                }
+                                            }}
                                             className="flex justify-between items-center group cursor-pointer"
                                         >
-                                            <span className={`text-[15px] font-[700] ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
-                                            <ChevronDown className={`w-4 h-4 ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/20 group-hover:text-[#3a2212]/40'}`} />
-                                        </Link>
+                                            <span className={`text-[19px] font-[800] ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/60 group-hover:text-[#3a2212]'}`}>{cat.title}</span>
+                                            <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${expandedCategory === cat.id ? 'rotate-180' : ''} ${cat.slug.toLowerCase() === slug.toLowerCase() ? 'text-[#bf8345]' : 'text-[#3a2212]/40 group-hover:text-[#3a2212]/60'}`} />
+                                        </div>
+                                        <div className={`overflow-hidden transition-all duration-300 ${expandedCategory === cat.id ? 'max-h-[800px] opacity-100 pt-3 pb-2' : 'max-h-0 opacity-0'}`}>
+                                            <div className="pl-4 border-l-2 border-[#bf8345]/20 space-y-4">
+                                                {!categoryProducts[cat.id] ? (
+                                                    <div className="text-[13px] text-black/40 italic font-[500]">Loading...</div>
+                                                ) : categoryProducts[cat.id].length > 0 ? (
+                                                    categoryProducts[cat.id].map(p => (
+                                                        <Link key={p.id} href={`/product/${p.id}`} className="block text-[14px] font-[600] text-[#3a2212]/50 hover:text-[#bf8345] truncate transition-colors">
+                                                            {p.name}
+                                                        </Link>
+                                                    ))
+                                                ) : (
+                                                    <div className="text-[13px] text-black/40 italic font-[500]">No products found</div>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -281,79 +310,79 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                             <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
                                                 <Link href={`/product/${p.id}`} className="flex flex-col flex-shrink-0">
                                                     <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
-                                                        <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{p.name}</h3>
+                                                        <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors tracking-tight">
+                                                            {p.name ? p.name.charAt(0).toUpperCase() + p.name.slice(1).toLowerCase() : ''}
+                                                        </h3>
                                                         <p className="text-[10px] md:text-[12px] text-black/50 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
                                                             {p.description || "Authentic heritage flavors passed down through generations."}
                                                         </p>
                                                     </div>
                                                 </Link>
 
-                                                <div className="w-full">
-                                                    <div className="h-[28px] md:h-[32px] flex items-center justify-center flex-shrink-0">
-                                                        <span className="text-[17px] md:text-[20px] font-[800] text-[#3a2212]">₹{currentPrice.toFixed(0)}</span>
-                                                        <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ {state.weight}</span>
-                                                    </div>
+                                                <div className="h-[28px] md:h-[32px] flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-[17px] md:text-[20px] font-[800] text-[#3a2212]">₹{currentPrice.toFixed(0)}</span>
+                                                    <span className="text-[11px] md:text-[13px] text-black/30 font-[600] ml-1">/ {state.weight}</span>
+                                                </div>
 
-                                                    <div className="flex justify-center gap-2 h-[38px] md:h-[46px] relative z-30 flex-shrink-0 mt-3">
-                                                        <div className={`flex items-center bg-[#fdfaf5] rounded-xl border border-black/5 h-full px-1 transition-colors ${isOutOfStock ? 'opacity-30 pointer-events-none' : ''}`}>
-                                                            <button
-                                                                className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
-                                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(-1); }}
-                                                            >
-                                                                <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
-                                                            </button>
-                                                            <span className="px-1.5 md:px-2 text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{state.quantity}</span>
-                                                            <button
-                                                                className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
-                                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(1); }}
-                                                            >
-                                                                <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
-                                                            </button>
-                                                        </div>
+                                                <div className="flex justify-center gap-2 h-[38px] md:h-[46px] relative z-30 flex-shrink-0 mt-3">
+                                                    <div className={`flex items-center bg-[#fdfaf5] rounded-xl border border-black/5 h-full px-1 transition-colors ${isOutOfStock ? 'opacity-30 pointer-events-none' : ''}`}>
                                                         <button
-                                                            disabled={isOutOfStock}
-                                                            className={`flex-1 h-full rounded-xl text-white text-[11px] md:text-[13px] font-[800] shadow-md transition-all uppercase active:scale-[0.98] flex items-center justify-center tracking-widest ${isOutOfStock ? 'bg-slate-300 shadow-none' : 'bg-[#5cb85c] hover:bg-[#4cae4c] shadow-green-100'}`}
-                                                            onClick={(e) => {
-                                                                if (isOutOfStock) return;
-                                                                e.preventDefault();
-                                                                e.stopPropagation();
-                                                                const pState = productStates[p.id] || { quantity: 1, weight: '250g' };
-                                                                addToCart({
-                                                                    id: p.id,
-                                                                    name: p.name,
-                                                                    price: currentPrice,
-                                                                    imageUrl: p.imageUrl,
-                                                                    stock: currentStock
-                                                                }, pState.quantity, pState.weight);
-                                                                setToastProduct(p);
-                                                                setShowToast(true);
-                                                                setTimeout(() => setShowToast(false), 3000);
-                                                            }}
+                                                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(-1); }}
                                                         >
-                                                            {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
+                                                            <Minus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
+                                                        </button>
+                                                        <span className="px-1.5 md:px-2 text-[14px] md:text-[15px] font-[800] text-[#3a2212] min-w-[20px] text-center font-sans">{state.quantity}</span>
+                                                        <button
+                                                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center hover:bg-black/5 rounded-full transition-colors text-black/30"
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleQuantity(1); }}
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4 text-[#bf8345]/60" />
                                                         </button>
                                                     </div>
+                                                    <button
+                                                        disabled={isOutOfStock}
+                                                        className={`flex-1 h-full rounded-xl text-white text-[11px] md:text-[13px] font-[800] shadow-md transition-all uppercase active:scale-[0.98] flex items-center justify-center tracking-widest ${isOutOfStock ? 'bg-slate-300 shadow-none' : 'bg-[#5cb85c] hover:bg-[#4cae4c] shadow-green-100'}`}
+                                                        onClick={(e) => {
+                                                            if (isOutOfStock) return;
+                                                            e.preventDefault();
+                                                            e.stopPropagation();
+                                                            const pState = productStates[p.id] || { quantity: 1, weight: '250g' };
+                                                            addToCart({
+                                                                id: p.id,
+                                                                name: p.name,
+                                                                price: currentPrice,
+                                                                imageUrl: p.imageUrl,
+                                                                stock: currentStock
+                                                            }, pState.quantity, pState.weight);
+                                                            setToastProduct(p);
+                                                            setShowToast(true);
+                                                            setTimeout(() => setShowToast(false), 3000);
+                                                        }}
+                                                    >
+                                                        {isOutOfStock ? 'NO STOCK' : 'ADD TO CART'}
+                                                    </button>
+                                                </div>
 
-                                                    <div className="flex justify-center gap-1 mt-3 h-[28px] md:h-[32px] flex-shrink-0 relative z-30">
-                                                        {['250g', '500g', '1KG'].map((w: string) => {
-                                                            const v = p.variants?.find((v: Variant) => v.weight === w);
-                                                            const vStock = v ? v.stock : p.stock;
-                                                            const isSel = state.weight === w;
+                                                <div className="flex justify-center gap-1 mt-3 h-[28px] md:h-[32px] flex-shrink-0 relative z-30">
+                                                    {['250g', '500g', '1KG'].map((w: string) => {
+                                                        const v = p.variants?.find((v: Variant) => v.weight === w);
+                                                        const vStock = v ? v.stock : p.stock;
+                                                        const isSel = state.weight === w;
 
-                                                            return (
-                                                                <button
-                                                                    key={w}
-                                                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWeight(w); }}
-                                                                    className={`flex-1 flex flex-col items-center justify-center rounded-[8px] text-[8px] md:text-[10px] px-0.5 font-[700] transition-all whitespace-nowrap overflow-hidden ${isSel
-                                                                        ? 'bg-[#3a2212] text-white shadow-sm'
-                                                                        : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
-                                                                        } ${vStock <= 0 ? (isSel ? 'bg-[#3a2212]/80' : 'opacity-40 grayscale') : ''}`}
-                                                                >
-                                                                    <span>{w}</span>
-                                                                </button>
-                                                            );
-                                                        })}
-                                                    </div>
+                                                        return (
+                                                            <button
+                                                                key={w}
+                                                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleWeight(w); }}
+                                                                className={`flex-1 flex flex-col items-center justify-center rounded-[8px] text-[8px] md:text-[10px] px-0.5 font-[700] transition-all whitespace-nowrap overflow-hidden ${isSel
+                                                                    ? 'bg-[#3a2212] text-white shadow-sm'
+                                                                    : 'border border-dashed border-black/10 text-black/30 hover:border-black/20'
+                                                                    } ${vStock <= 0 ? (isSel ? 'bg-[#3a2212]/80' : 'opacity-40 grayscale') : ''}`}
+                                                            >
+                                                                <span>{w}</span>
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         </div>
@@ -394,10 +423,10 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </div>
                     </div>
                 </section>
-            </div>
+            </div >
 
             {/* Footer */}
-            <footer className="w-full bg-[#1a1a1a] text-white py-20 mt-20">
+            < footer className="w-full bg-[#1a1a1a] text-white py-20 mt-20" >
                 <div className="max-w-[1440px] mx-auto px-8 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-16">
                     <div className="space-y-8 col-span-1 md:col-span-1">
                         <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[60px] md:h-[80px] w-auto brightness-0 invert" />
@@ -417,10 +446,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         </ul>
                     </div>
                 </div>
-            </footer>
+            </footer >
 
             {/* Toast Notification */}
-            <div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[250] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+            < div className={`fixed top-6 left-1/2 -translate-x-1/2 z-[250] transition-all duration-500 ${showToast ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0 pointer-events-none'}`
+            }>
                 <div className="bg-[#15a31a] text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[300px]">
                     <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                         <Check className="w-6 h-6" />
@@ -430,7 +460,7 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                         <p className="text-[12px] opacity-80">{toastProduct?.name}</p>
                     </div>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

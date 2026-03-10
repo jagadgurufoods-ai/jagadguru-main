@@ -51,6 +51,7 @@ interface HomeData {
 export default function Home() {
   const [data, setData] = useState<HomeData>({ banners: [], sections: [] });
   const [loading, setLoading] = useState(true);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
   const { addToCart } = useCart();
   const [cartQuantities, setCartQuantities] = useState<Record<number, number>>({});
   const [toastProduct, setToastProduct] = useState<Product | null>(null);
@@ -65,12 +66,38 @@ export default function Home() {
       .then(data => {
         if (data && data.sections) {
           setData(data);
+
+          if (data.banners && data.banners.length > 0) {
+            let loadedCount = 0;
+            const imagesToLoad = data.banners.map((b: any) => b.imageUrl);
+
+            imagesToLoad.forEach((url: string) => {
+              const img = new Image();
+              img.onload = () => {
+                loadedCount++;
+                if (loadedCount === imagesToLoad.length) setImagesLoaded(true);
+              };
+              img.onerror = () => {
+                loadedCount++;
+                if (loadedCount === imagesToLoad.length) setImagesLoaded(true);
+              };
+              img.src = url;
+            });
+          } else {
+            const img = new Image();
+            img.onload = () => setImagesLoaded(true);
+            img.onerror = () => setImagesLoaded(true);
+            img.src = '/assets/heritage-story-bg.jpeg';
+          }
+        } else {
+          setImagesLoaded(true);
         }
         setLoading(false);
       })
       .catch(err => {
         console.error(err);
         setLoading(false);
+        setImagesLoaded(true);
       });
   }, []);
 
@@ -86,7 +113,7 @@ export default function Home() {
   const categories = [
     { name: 'PICKLES', icon: '/assets/image 37.png', link: '/category/pickles' },
     { name: 'POWDERS & \nMASALAS', icon: '/assets/image 38.png', link: '/category/powders' },
-    { name: 'SNACKS', icon: '/assets/image 38.png', link: '/category/snacks' },
+    { name: 'SNACKS', icon: '/assets/image (2) 1.png', link: '/category/snacks' },
     { name: 'PAPADS & \nFRYUMS', icon: '/assets/image 71.png', link: '/category/papads' },
     { name: 'PREMIX', icon: '/assets/image 72.png', link: '/category/premix' },
     { name: 'COMBOS', icon: '/assets/image 73.png', link: '/category/combos' },
@@ -182,6 +209,8 @@ export default function Home() {
           <img
             src={product.imageUrl || '/assets/image 53.png'}
             alt={product.name}
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
@@ -196,7 +225,9 @@ export default function Home() {
         <div className="px-4 md:px-6 pt-5 pb-6 text-center flex-1 flex flex-col justify-between overflow-hidden">
           <Link href={`/product/${product.id}`} className="flex flex-col flex-shrink-0">
             <div className="h-[56px] md:h-[68px] flex flex-col justify-center">
-              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors uppercase tracking-tight">{product.name}</h3>
+              <h3 className="text-[14px] md:text-[18px] font-sans font-[700] text-[#000] leading-[1.2] line-clamp-2 group-hover:text-[#bf8345] transition-colors tracking-tight">
+                {product.name ? product.name.charAt(0).toUpperCase() + product.name.slice(1).toLowerCase() : ''}
+              </h3>
               <p className="text-[10px] md:text-[12px] text-black/50 font-[500] italic line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
                 {product.grandmasSays || product.description || 'Authentic heritage flavors passed down through generations'}
               </p>
@@ -292,6 +323,8 @@ export default function Home() {
           <img
             src="/assets/image 53.png"
             alt="Magaya"
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/assets/image 53.png'; }}
           />
@@ -320,6 +353,20 @@ export default function Home() {
       </div>
     );
   };
+
+  if (loading || !imagesLoaded) {
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-[#fcf9f4]">
+        <img src="/assets/logo.png" alt="Jagadguru Foods" className="h-[60px] md:h-[80px] w-auto animate-pulse mb-8 opacity-80" />
+        <div className="flex gap-2">
+          <div className="w-3 h-3 bg-[#bf8345] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+          <div className="w-3 h-3 bg-[#15a31a] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+          <div className="w-3 h-3 bg-[#bf8345] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
+        <p className="mt-4 text-[#3a2212]/50 font-serif font-[600] tracking-wider uppercase text-[12px]">Preparing heritage flavors...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full flex flex-col relative overflow-x-hidden">
@@ -367,7 +414,7 @@ export default function Home() {
         ) : (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/assets/image 65.png')" }}
+            style={{ backgroundImage: "url('/assets/heritage-story-bg.jpeg')" }}
           />
         )}
 
@@ -391,7 +438,7 @@ export default function Home() {
                 href={cat.link}
                 className={`flex items-center justify-center gap-4 px-6 hover:bg-black/5 transition-colors ${idx !== categories.length - 1 ? 'dashed-border-r' : ''}`}
               >
-                <img src={cat.icon} alt="" className="w-12 h-12 object-contain brightness-110" />
+                <img src={cat.icon} alt="" className="w-12 h-12 lg:w-[60px] lg:h-[60px] object-contain brightness-110" />
                 <span className="text-white text-[13px] font-[700] tracking-[0.05em] leading-[1.2] uppercase whitespace-pre-line">
                   {cat.name}
                 </span>
@@ -430,7 +477,7 @@ export default function Home() {
           ) : (
             <>
               <img
-                src="/assets/image 65.png"
+                src="/assets/heritage-story-bg.jpeg"
                 alt="Jagadguru Heritage"
                 className="w-full h-full object-cover brightness-[0.9]"
               />
@@ -498,7 +545,7 @@ export default function Home() {
                 <div className="h-[2px] w-full bg-black/[0.05]" />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-                {[1, 2, 3, 4].map((i) => renderSkeletonCard(i))}
+                {/* Fallback space when loading... */}
               </div>
             </section>
           ) : data.sections.length > 0 ? (
@@ -560,32 +607,20 @@ export default function Home() {
       <section className="relative w-full aspect-video md:aspect-[21/9] flex items-center overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center brightness-[0.85]"
-          style={{ backgroundImage: "url('/assets/image 65.png')" }}
+          style={{ backgroundImage: "url('/assets/heritage-story-bg.jpeg')" }}
         />
         <div className="relative max-w-[1440px] mx-auto px-6 md:px-12 w-full grid grid-cols-1 lg:grid-cols-2">
-          <div className="space-y-4 md:space-y-8 p-6 md:p-10 rounded-2xl bg-black/10 backdrop-blur-[2px] lg:bg-transparent lg:backdrop-blur-0">
-            <div className="space-y-1 md:space-y-2">
-              <span className="text-white text-[12px] md:text-[14px] font-[700] tracking-[0.3em] uppercase opacity-80">OUR LEGACY</span>
-              <h2 className="text-[32px] md:text-[64px] font-serif font-[700] text-white leading-tight md:leading-[1.1]">Our Heritage Story</h2>
-            </div>
-            <div className="space-y-4 md:space-y-6 text-white/90 text-[14px] md:text-[18px] leading-relaxed max-w-[600px] font-[300]">
-              <p>Jagadguru Foods began in a <strong>small family kitchen</strong> in the heart of Andhra. For three generations, we have preserved the flavors of South Indian heritage.</p>
-              <p className="hidden md:block">Every jar of pickle and every packet of spice reflects our commitment to purity, traditional methods, and the soulful taste of home-cooked food.</p>
-            </div>
-          </div>
         </div>
       </section>
 
       {/* Certifications Section */}
       <section className="w-full bg-[#fdfaf5] py-12 md:py-24 space-y-8 md:space-y-16">
         <h2 className="text-center text-[24px] md:text-[32px] font-serif font-[700] text-[#3a2212]">Our Certifications</h2>
-        <div className="max-w-[1440px] mx-auto px-6 flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 grayscale hover:grayscale-0 transition-all duration-700">
-          <img src="/assets/image (2) 1.png" alt="FSSAI" className="h-[30px] md:h-[50px] w-auto" />
-          <img src="/assets/image 71.png" alt="Jaivik Bharat" className="h-[40px] md:h-[70px] w-auto" />
-          <img src="/assets/image 72.png" alt="India Organic" className="h-[40px] md:h-[70px] w-auto" />
-          <img src="/assets/image 73.png" alt="USDA Organic" className="h-[50px] md:h-[80px] w-auto" />
-          <img src="/assets/image 74.png" alt="Other" className="h-[50px] md:h-[80px] w-auto" />
-          <img src="/assets/Group 1000001883.png" alt="Ecocert" className="h-[50px] md:h-[80px] w-auto" />
+        <div className="max-w-[1440px] mx-auto px-6 flex flex-wrap justify-center items-center gap-8 md:gap-16 transition-all duration-700">
+          <img src="/assets/cert1.jpeg" alt="Certification 1" className="h-[60px] md:h-[100px] w-auto mix-blend-multiply" />
+          <img src="/assets/cert2.jpeg" alt="Certification 2" className="h-[60px] md:h-[100px] w-auto mix-blend-multiply" />
+          <img src="/assets/cert3.jpeg" alt="Certification 3" className="h-[60px] md:h-[100px] w-auto mix-blend-multiply" />
+          <img src="/assets/cert4.jpeg" alt="Certification 4" className="h-[60px] md:h-[100px] w-auto mix-blend-multiply" />
         </div>
       </section>
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import ProductIngredientEditor from '../../components/map/ProductIngredientEditor';
 
 interface Category {
     id: number;
@@ -17,6 +18,7 @@ interface ProductFormProps {
 export default function ProductForm({ onClose, onSuccess, initialData }: ProductFormProps) {
     const { token } = useAuth();
     const [categories, setCategories] = useState<Category[]>([]);
+    const [allProducts, setAllProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [image, setImage] = useState<File | null>(null);
@@ -27,9 +29,12 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         stock: initialData?.stock?.toString() || '',
         categoryId: initialData?.categoryId?.toString() || '',
         grandmasSays: initialData?.grandmasSays || '',
-        ingredients: initialData?.ingredients || '',
+        pairsWellWith: initialData?.pairsWellWith || '',
+        ingredientsText: initialData?.ingredientsText || '',
         tasteMeter: initialData?.tasteMeter?.toString() || '3'
     });
+
+    const [ingredients, setIngredients] = useState<any[]>(initialData?.ingredients || []);
 
     const [variants, setVariants] = useState(
         initialData?.variants?.length > 0
@@ -46,11 +51,21 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
             .then(res => res.json())
             .then(data => setCategories(data))
             .catch(err => console.error('Failed to fetch categories:', err));
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/products`)
+            .then(res => res.json())
+            .then((data: any) => setAllProducts(data.products || []))
+            .catch(err => console.error('Failed to fetch products:', err));
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        if (e.target instanceof HTMLSelectElement && e.target.multiple) {
+            const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+            setFormData(prev => ({ ...prev, [name]: selectedOptions.join(',') }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleVariantChange = (index: number, field: string, value: string) => {
@@ -90,6 +105,7 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         }
 
         data.append('variants', JSON.stringify(filteredVariants));
+        data.append('ingredients', JSON.stringify(ingredients));
 
         try {
             const url = initialData
@@ -237,6 +253,41 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                                 placeholder="Ancient wisdom about this recipe..."
                                 className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900 italic"
                             />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Key Ingredients (Comma separated)</label>
+                            <textarea
+                                name="ingredientsText"
+                                value={formData.ingredientsText}
+                                onChange={handleChange}
+                                rows={2}
+                                placeholder="Mango, Salt, Chilli Powder, Gingelly Oil..."
+                                className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900"
+                            />
+                        </div>
+
+                        <div className="md:col-span-2 p-8 bg-slate-50 rounded-[40px] border border-slate-100">
+                            <ProductIngredientEditor
+                                ingredients={ingredients}
+                                onChange={setIngredients}
+                            />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Pairs Well With</label>
+                            <select
+                                multiple
+                                name="pairsWellWith"
+                                value={formData.pairsWellWith ? formData.pairsWellWith.split(',') : []}
+                                onChange={handleChange}
+                                className="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-green-500 transition-all font-medium text-slate-900 min-h-[120px]"
+                            >
+                                {allProducts.filter(p => !initialData || p.id !== initialData.id).map(p => (
+                                    <option key={p.id} value={p.id}>{p.name}</option>
+                                ))}
+                            </select>
+                            <p className="text-[10px] text-slate-400 font-medium ml-1">Hold Cmd/Ctrl to select multiple products.</p>
                         </div>
 
                         <div className="space-y-2 md:col-span-2">

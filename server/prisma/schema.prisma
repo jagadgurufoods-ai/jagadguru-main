@@ -72,7 +72,7 @@ model Category {
 model Product {
   id              Int                   @id @default(autoincrement())
   categoryId      Int                   @map("category_id")
-  category        Category              @relation(fields: [categoryId], references: [id])
+  category        Category              @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   name            String
   description     String?
   price           Decimal               @db.Decimal(10, 2)
@@ -80,7 +80,7 @@ model Product {
   quantity        Decimal?              @db.Decimal(10, 2) // weight/volume
   stock           Int
   grandmasSays    String?               @map("grandmas_says")
-  ingredients     String?
+  ingredientsText String?               @map("ingredients")
   imageUrl        String?               @map("image_url")
   pairsWellWith   String?               @map("pairs_well_with")
   tasteMeter      Int?                  @map("taste_meter") // 1-5 scale
@@ -91,9 +91,28 @@ model Product {
   sectionProducts HomeSectionProduct[]
   cartItems       CartItem[]
   variants        ProductVariant[]
+  ingredients     Ingredient[]
 
   @@map("products")
 }
+
+model Ingredient {
+  id               Int      @id @default(autoincrement())
+  productId        Int      @map("product_id")
+  product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name             String
+  originState      String   @map("origin_state")
+  history          String?
+  imageUrl         String?  @map("image_url")
+  mapImageUrl      String?  @map("map_image_url")
+  mapImageCaption  String?  @map("map_image_caption")
+  mapX             Float?   @map("map_x")
+  mapY             Float?   @map("map_y")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("ingredients")
+}
+
 
 model ProductVariant {
   id            Int      @id @default(autoincrement())
@@ -113,7 +132,7 @@ model CartItem {
   userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id])
   productId Int      @map("product_id")
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Int      @default(1)
   weight    String?  @default("250g")
   createdAt DateTime @default(now()) @map("created_at")
@@ -145,7 +164,7 @@ model OrderItem {
   orderId   Int     @map("order_id")
   order     Order   @relation(fields: [orderId], references: [id])
   productId Int     @map("product_id")
-  product   Product @relation(fields: [productId], references: [id])
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   quantity  Decimal @db.Decimal(10, 2)
   price     Decimal @db.Decimal(10, 2)
 
@@ -157,7 +176,7 @@ model Wishlist {
   userId    Int      @map("user_id")
   user      User     @relation(fields: [userId], references: [id])
   productId Int      @map("product_id")
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([userId, productId])
@@ -167,7 +186,7 @@ model Wishlist {
 model ProductReview {
   id             Int       @id @default(autoincrement())
   productId      Int       @map("product_id")
-  product        Product   @relation(fields: [productId], references: [id])
+  product        Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
   userId         Int       @map("user_id")
   user           User      @relation(name: "UserReviews", fields: [userId], references: [id])
   rating         Int // 1-5
@@ -215,7 +234,7 @@ model HomeSectionProduct {
   homeSectionId Int         @map("home_section_id")
   homeSection   HomeSection @relation(fields: [homeSectionId], references: [id])
   productId     Int         @map("product_id")
-  product       Product     @relation(fields: [productId], references: [id])
+  product       Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
   displayOrder  Int?        @map("display_order")
 
   @@map("home_section_products")

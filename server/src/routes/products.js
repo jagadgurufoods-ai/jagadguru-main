@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 
         const products = await prisma.product.findMany({
             where,
-            include: { category: true, variants: true }
+            include: { category: true, variants: true, ingredients: true }
         });
         res.json(products);
     } catch (error) {
@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
         const { id } = req.params;
         const product = await prisma.product.findUnique({
             where: { id: parseInt(id) },
-            include: { category: true, variants: true }
+            include: { category: true, variants: true, ingredients: true }
         });
 
         if (!product) {
@@ -54,7 +54,7 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredients, pairsWellWith, tasteMeter, variants
+        ingredientsText, pairsWellWith, tasteMeter, variants, ingredients
     } = req.body;
 
     let imageUrl = null;
@@ -75,7 +75,7 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
                 categoryId: parseInt(categoryId),
                 quantity: quantity ? parseFloat(quantity) : null,
                 grandmasSays,
-                ingredients,
+                ingredientsText,
                 imageUrl,
                 pairsWellWith,
                 tasteMeter: tasteMeter ? parseInt(tasteMeter) : null,
@@ -86,9 +86,21 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
                         originalPrice: v.originalPrice ? parseFloat(v.originalPrice) : null,
                         stock: parseInt(v.stock)
                     }))
+                },
+                ingredients: {
+                    create: ingredients ? JSON.parse(ingredients).map(i => ({
+                        name: i.name,
+                        originState: i.originState || '',
+                        history: i.history,
+                        imageUrl: i.imageUrl,
+                        mapImageUrl: i.mapImageUrl,
+                        mapImageCaption: i.mapImageCaption,
+                        mapX: i.mapX ? parseFloat(i.mapX) : null,
+                        mapY: i.mapY ? parseFloat(i.mapY) : null
+                    })) : []
                 }
             },
-            include: { variants: true }
+            include: { variants: true, ingredients: true }
         });
         res.status(201).json(product);
     } catch (error) {
@@ -102,7 +114,7 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredients, pairsWellWith, tasteMeter, variants
+        ingredientsText, pairsWellWith, tasteMeter, variants, ingredients
     } = req.body;
 
     try {
@@ -115,7 +127,7 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
         if (categoryId !== undefined) data.categoryId = parseInt(categoryId);
         if (quantity !== undefined) data.quantity = quantity ? parseFloat(quantity) : null;
         if (grandmasSays !== undefined) data.grandmasSays = grandmasSays;
-        if (ingredients !== undefined) data.ingredients = ingredients;
+        if (ingredientsText !== undefined) data.ingredientsText = ingredientsText;
         if (pairsWellWith !== undefined) data.pairsWellWith = pairsWellWith;
         if (tasteMeter !== undefined) data.tasteMeter = tasteMeter ? parseInt(tasteMeter) : null;
         if (req.file) {
@@ -124,8 +136,6 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
 
         if (variants) {
             const parsedVariants = JSON.parse(variants);
-            // Delete old variants and create new ones for simplicity, or update them.
-            // Let's go with delete and recreate for simplicity in a sync operation.
             data.variants = {
                 deleteMany: {},
                 create: parsedVariants.map(v => ({
@@ -137,10 +147,27 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
             };
         }
 
+        if (ingredients) {
+            const parsedIngredients = JSON.parse(ingredients);
+            data.ingredients = {
+                deleteMany: {},
+                create: parsedIngredients.map(i => ({
+                    name: i.name,
+                    originState: i.originState || '',
+                    history: i.history,
+                    imageUrl: i.imageUrl,
+                    mapImageUrl: i.mapImageUrl,
+                    mapImageCaption: i.mapImageCaption,
+                    mapX: i.mapX ? parseFloat(i.mapX) : null,
+                    mapY: i.mapY ? parseFloat(i.mapY) : null
+                }))
+            };
+        }
+
         const product = await prisma.product.update({
             where: { id: parseInt(req.params.id) },
             data,
-            include: { category: true, variants: true }
+            include: { category: true, variants: true, ingredients: true }
         });
         res.json(product);
     } catch (error) {
