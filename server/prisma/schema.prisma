@@ -84,10 +84,10 @@ model Product {
   imageUrl        String?               @map("image_url")
   pairsWellWith   String?               @map("pairs_well_with")
   tasteMeter      Int?                  @map("taste_meter") // 1-5 scale
-  spiceLevel      Int?                  @map("spice_level") // 1-5 scale
-  sourLevel       Int?                  @map("sour_level") // 1-5 scale
-  tangyLevel      Int?                  @map("tangy_level") // 1-5 scale
-  sweetLevel      Int?                  @map("sweet_level") // 1-5 scale
+  spiceLevel      Int?                  @map("spice_level")
+  sourLevel       Int?                  @map("sour_level")
+  tangyLevel      Int?                  @map("tangy_level")
+  sweetLevel      Int?                  @map("sweet_level")
   heritageMapUrl  String?               @map("heritage_map_url")
   createdAt       DateTime              @default(now()) @map("created_at")
   orderItems      OrderItem[]

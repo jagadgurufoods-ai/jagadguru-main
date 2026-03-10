@@ -34,10 +34,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         pairsWellWith: initialData?.pairsWellWith || '',
         ingredientsText: initialData?.ingredientsText || '',
         tasteMeter: initialData?.tasteMeter?.toString() || '3',
-        spiceLevel: initialData?.spiceLevel?.toString() || '3',
-        sourLevel: initialData?.sourLevel?.toString() || '3',
-        tangyLevel: initialData?.tangyLevel?.toString() || '3',
-        sweetLevel: initialData?.sweetLevel?.toString() || '3',
+        spiceLevel: initialData?.spiceLevel?.toString() || '0',
+        sourLevel: initialData?.sourLevel?.toString() || '0',
+        tangyLevel: initialData?.tangyLevel?.toString() || '0',
+        sweetLevel: initialData?.sweetLevel?.toString() || '0',
         heritageMapUrl: initialData?.heritageMapUrl || ''
     });
 
@@ -261,10 +261,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             </div>
                         </div>
 
-                        <div className="space-y-2 md:col-span-1">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Spice Level (1-5)</label>
-                            <div className="flex gap-2 sm:gap-4">
-                                {[1, 2, 3, 4, 5].map(level => (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Spice Level (0-5)</label>
+                            <div className="flex gap-4">
+                                {[0, 1, 2, 3, 4, 5].map(level => (
                                     <button
                                         key={level}
                                         type="button"
@@ -277,10 +277,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             </div>
                         </div>
 
-                        <div className="space-y-2 md:col-span-1">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sour Level (1-5)</label>
-                            <div className="flex gap-2 sm:gap-4">
-                                {[1, 2, 3, 4, 5].map(level => (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sour Level (0-5)</label>
+                            <div className="flex gap-4">
+                                {[0, 1, 2, 3, 4, 5].map(level => (
                                     <button
                                         key={level}
                                         type="button"
@@ -293,10 +293,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             </div>
                         </div>
 
-                        <div className="space-y-2 md:col-span-1">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Tangy Level (1-5)</label>
-                            <div className="flex gap-2 sm:gap-4">
-                                {[1, 2, 3, 4, 5].map(level => (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Tangy Level (0-5)</label>
+                            <div className="flex gap-4">
+                                {[0, 1, 2, 3, 4, 5].map(level => (
                                     <button
                                         key={level}
                                         type="button"
@@ -309,10 +309,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             </div>
                         </div>
 
-                        <div className="space-y-2 md:col-span-1">
-                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sweet Level (1-5)</label>
-                            <div className="flex gap-2 sm:gap-4">
-                                {[1, 2, 3, 4, 5].map(level => (
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Sweet Level (0-5)</label>
+                            <div className="flex gap-4">
+                                {[0, 1, 2, 3, 4, 5].map(level => (
                                     <button
                                         key={level}
                                         type="button"

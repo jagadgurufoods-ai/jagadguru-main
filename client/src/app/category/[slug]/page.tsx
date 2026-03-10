@@ -19,11 +19,11 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
     const { slug } = use(params);
     const { addToCart } = useCart();
     const { toggleWishlist, isInWishlist } = useWishlist();
-    const [priceRange, setPriceRange] = useState(2500);
-    const [spiceLevel, setSpiceLevel] = useState<number>(5);
-    const [sourLevel, setSourLevel] = useState<number>(5);
-    const [tangyLevel, setTangyLevel] = useState<number>(5);
-    const [sweetLevel, setSweetLevel] = useState<number>(5);
+    const [priceRange, setPriceRange] = useState(5000);
+    const [spiceLevel, setSpiceLevel] = useState(0);
+    const [sourLevel, setSourLevel] = useState(0);
+    const [tangyLevel, setTangyLevel] = useState(0);
+    const [sweetLevel, setSweetLevel] = useState(0);
     const [categories, setCategories] = useState<any[]>([]);
     const [products, setProducts] = useState<any[]>([]);
     const [currentCategory, setCurrentCategory] = useState<any>(null);
@@ -101,6 +101,20 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
         </div>
     );
 
+    const filteredProducts = products.filter(p => {
+        const state = productStates[p.id] || { quantity: 1, weight: '250g' };
+        const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
+        const currentPrice = variant ? Number(variant.price) : Number(p.price);
+
+        if (priceRange < 5000 && currentPrice > priceRange) return false;
+        if (spiceLevel > 0 && (p.spiceLevel || 0) < spiceLevel) return false;
+        if (sourLevel > 0 && (p.sourLevel || 0) < sourLevel) return false;
+        if (tangyLevel > 0 && (p.tangyLevel || 0) < tangyLevel) return false;
+        if (sweetLevel > 0 && (p.sweetLevel || 0) < sweetLevel) return false;
+
+        return true;
+    });
+
     return (
         <div className="min-h-screen bg-[#fcf9f4] font-sans text-[#3a2212] overflow-x-hidden">
             {/* Toast Notification */}
@@ -121,18 +135,27 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                     {/* Left Sidebar */}
                     <aside className="hidden lg:block w-[300px] border-r border-[#3a2212]/5 pt-12 px-8 space-y-12 bg-white/20 shrink-0">
                         <div className="space-y-8">
-                            <h2 className="text-[18px] font-serif font-[700]">Filter By</h2>
-
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-[18px] font-serif font-[700] text-[#3a2212]">Filter By</h2>
+                                {(priceRange < 5000 || spiceLevel > 0 || sourLevel > 0 || tangyLevel > 0 || sweetLevel > 0) && (
+                                    <button
+                                        onClick={() => { setPriceRange(5000); setSpiceLevel(0); setSourLevel(0); setTangyLevel(0); setSweetLevel(0); }}
+                                        className="text-[12px] font-[800] text-[#bf8345] uppercase tracking-widest hover:underline"
+                                    >
+                                        Clear All
+                                    </button>
+                                )}
+                            </div>
                             <div className="space-y-6">
                                 {/* Price Filter */}
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[14px] font-[800] text-[#3a2212]">Price</span>
-                                        <span className="text-[12px] font-[600] text-[#bf8345]">₹0 - ₹{priceRange}</span>
+                                    <div className="flex justify-between items-center text-[14px] font-[700] text-[#3a2212]">
+                                        <span>Max Price</span>
+                                        <span className="text-[#bf8345]">{priceRange === 5000 ? 'Any' : `₹${priceRange}`}</span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="0"
+                                        min="100"
                                         max="5000"
                                         step="100"
                                         value={priceRange}
@@ -141,72 +164,64 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                     />
                                 </div>
 
-                                {/* Spice Level Filter */}
+                                {/* Spice Level */}
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[14px] font-[800] text-[#3a2212]">Spice Level</span>
-                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {spiceLevel}</span>
+                                    <div className="flex justify-between items-center text-[14px] font-[700] text-[#3a2212]">
+                                        <span>Min Spice</span>
+                                        <span className="text-[#bf8345]">{spiceLevel === 0 ? 'Any' : `${spiceLevel}/5`}</span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="1"
+                                        min="0"
                                         max="5"
-                                        step="1"
                                         value={spiceLevel}
                                         onChange={(e) => setSpiceLevel(Number(e.target.value))}
                                         className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
                                     />
-                                    <div className="flex justify-between text-[10px] text-black/40 font-[600]">
-                                        <span>Mild</span>
-                                        <span>Extreme</span>
-                                    </div>
                                 </div>
 
-                                {/* Sour Level Filter */}
+                                {/* Sour Level */}
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[14px] font-[800] text-[#3a2212]">Sour Level</span>
-                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {sourLevel}</span>
+                                    <div className="flex justify-between items-center text-[14px] font-[700] text-[#3a2212]">
+                                        <span>Min Sour</span>
+                                        <span className="text-[#bf8345]">{sourLevel === 0 ? 'Any' : `${sourLevel}/5`}</span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="1"
+                                        min="0"
                                         max="5"
-                                        step="1"
                                         value={sourLevel}
                                         onChange={(e) => setSourLevel(Number(e.target.value))}
                                         className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
                                     />
                                 </div>
 
-                                {/* Tangy Level Filter */}
+                                {/* Tangy Level */}
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[14px] font-[800] text-[#3a2212]">Tangy Level</span>
-                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {tangyLevel}</span>
+                                    <div className="flex justify-between items-center text-[14px] font-[700] text-[#3a2212]">
+                                        <span>Min Tangy</span>
+                                        <span className="text-[#bf8345]">{tangyLevel === 0 ? 'Any' : `${tangyLevel}/5`}</span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="1"
+                                        min="0"
                                         max="5"
-                                        step="1"
                                         value={tangyLevel}
                                         onChange={(e) => setTangyLevel(Number(e.target.value))}
                                         className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
                                     />
                                 </div>
 
-                                {/* Sweet Level Filter */}
+                                {/* Sweet Level */}
                                 <div className="space-y-3">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[14px] font-[800] text-[#3a2212]">Sweet Level</span>
-                                        <span className="text-[12px] font-[600] text-[#bf8345]">≤ {sweetLevel}</span>
+                                    <div className="flex justify-between items-center text-[14px] font-[700] text-[#3a2212]">
+                                        <span>Min Sweet</span>
+                                        <span className="text-[#bf8345]">{sweetLevel === 0 ? 'Any' : `${sweetLevel}/5`}</span>
                                     </div>
                                     <input
                                         type="range"
-                                        min="1"
+                                        min="0"
                                         max="5"
-                                        step="1"
                                         value={sweetLevel}
                                         onChange={(e) => setSweetLevel(Number(e.target.value))}
                                         className="w-full h-1 bg-black/10 rounded-lg appearance-none cursor-pointer accent-[#bf8345]"
@@ -291,32 +306,19 @@ export default function CategoryPage({ params }: { params: Promise<{ slug: strin
                                 </div>
                                 <Link href="/" className="inline-block px-8 py-3 bg-[#bf8345] text-white rounded-xl font-bold uppercase tracking-widest text-[12px] shadow-lg shadow-orange-100">Browse All Categories</Link>
                             </div>
-                        ) : products.length === 0 ? (
+                        ) : filteredProducts.length === 0 ? (
                             <div className="py-20 text-center space-y-6">
                                 <div className="w-20 h-20 bg-black/[0.03] rounded-full flex items-center justify-center mx-auto">
                                     <ShoppingCart className="w-8 h-8 text-black/10" />
                                 </div>
                                 <div className="space-y-1">
                                     <h3 className="text-2xl font-serif text-[#3a2212]">No products discovered</h3>
-                                    <p className="text-black/40">We are currently updating our heritage stock for this category.</p>
+                                    <p className="text-black/40">{products.length === 0 ? "We are currently updating our heritage stock for this category." : "Try adjusting your filters to find what you're looking for."}</p>
                                 </div>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-                                {products.filter(p => {
-                                    // Custom Filtering Logics
-                                    if ((p.spiceLevel || 0) > spiceLevel) return false;
-                                    if ((p.sourLevel || 0) > sourLevel) return false;
-                                    if ((p.tangyLevel || 0) > tangyLevel) return false;
-                                    if ((p.sweetLevel || 0) > sweetLevel) return false;
-
-                                    const state = productStates[p.id] || { quantity: 1, weight: '250g' };
-                                    const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
-                                    const currentPrice = variant ? Number(variant.price) : Number(p.price);
-                                    if (currentPrice > priceRange) return false;
-
-                                    return true;
-                                }).map((p) => {
+                                {filteredProducts.map((p) => {
                                     const state = productStates[p.id] || { quantity: 1, weight: '250g' };
                                     const variant = p.variants?.find((v: Variant) => v.weight === state.weight);
                                     const currentPrice = variant ? Number(variant.price) : Number(p.price);
