@@ -6,7 +6,7 @@ import { Spice } from './types';
 export default function AdminMapPlotter() {
   const [spices, setSpices] = useState<Spice[]>([]);
   const [mapImage, setMapImage] = useState<string>('/india-map.png');
-  
+
   // Current edit state
   const [isEditing, setIsEditing] = useState(false);
   const [currentId, setCurrentId] = useState<string>('');
@@ -14,7 +14,7 @@ export default function AdminMapPlotter() {
   const [stateName, setStateName] = useState('');
   const [history, setHistory] = useState('');
   const [coords, setCoords] = useState<{ x: number; y: number } | null>(null);
-  
+
   // New state for spice image
   const [spiceImage, setSpiceImage] = useState<string>('');
   const [mapPopupImage, setMapPopupImage] = useState<string>('');
@@ -26,7 +26,7 @@ export default function AdminMapPlotter() {
     // Load existing data from localStorage
     const loaded = localStorage.getItem('spices_data');
     if (loaded) setSpices(JSON.parse(loaded));
-    
+
     const loadedImg = localStorage.getItem('map_image_data');
     if (loadedImg) setMapImage(loadedImg);
   }, []);
@@ -96,7 +96,7 @@ export default function AdminMapPlotter() {
     const y = e.clientY - rect.top;
     const xPercent = (x / rect.width) * 100;
     const yPercent = (y / rect.height) * 100;
-    
+
     setCoords({ x: parseFloat(xPercent.toFixed(2)), y: parseFloat(yPercent.toFixed(2)) });
   };
 
@@ -111,19 +111,19 @@ export default function AdminMapPlotter() {
     }
 
     if (isEditing) {
-      const updated = spices.map(s => 
-        s.id === currentId 
-          ? { 
-              ...s, 
-              name, 
-              origin_state: stateName, 
-              history, 
-              map_x: coords.x, 
-              map_y: coords.y, 
-              image_url: spiceImage,
-              map_image_url: mapPopupImage,
-              map_image_caption: mapPopupCaption
-            }
+      const updated = spices.map(s =>
+        s.id === currentId
+          ? {
+            ...s,
+            name,
+            originState: stateName,
+            history,
+            mapX: coords.x,
+            mapY: coords.y,
+            imageUrl: spiceImage,
+            mapImageUrl: mapPopupImage,
+            mapImageCaption: mapPopupCaption
+          }
           : s
       );
       saveToStorage(updated);
@@ -132,40 +132,40 @@ export default function AdminMapPlotter() {
       const newSpice: Spice = {
         id: Date.now().toString(),
         name,
-        origin_state: stateName,
+        originState: stateName,
         history,
-        map_x: coords.x,
-        map_y: coords.y,
-        image_url: spiceImage,
-        map_image_url: mapPopupImage,
-        map_image_caption: mapPopupCaption
+        mapX: coords.x,
+        mapY: coords.y,
+        imageUrl: spiceImage,
+        mapImageUrl: mapPopupImage,
+        mapImageCaption: mapPopupCaption
       };
       saveToStorage([...spices, newSpice]);
       alert("New spice saved and pinned to map!");
     }
-    
+
     resetForm();
     window.dispatchEvent(new Event('spices_updated'));
   };
 
   const editSpice = (spice: Spice) => {
     setIsEditing(true);
-    setCurrentId(spice.id);
+    setCurrentId(spice.id.toString());
     setName(spice.name);
-    setStateName(spice.origin_state);
+    setStateName(spice.originState);
     setHistory(spice.history || '');
-    setSpiceImage(spice.image_url || '');
-    setMapPopupImage(spice.map_image_url || '');
-    setMapPopupCaption(spice.map_image_caption || '');
-    if (spice.map_x !== null && spice.map_y !== null) {
-      setCoords({ x: spice.map_x, y: spice.map_y });
+    setSpiceImage(spice.imageUrl || '');
+    setMapPopupImage(spice.mapImageUrl || '');
+    setMapPopupCaption(spice.mapImageCaption || '');
+    if (spice.mapX !== null && spice.mapY !== null) {
+      setCoords({ x: spice.mapX, y: spice.mapY });
     } else {
       setCoords(null);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const deleteSpice = (id: string) => {
+  const deleteSpice = (id: string | number) => {
     if (confirm("Are you sure you want to delete this spice?")) {
       saveToStorage(spices.filter(s => s.id !== id));
       if (currentId === id) resetForm();
@@ -187,7 +187,7 @@ export default function AdminMapPlotter() {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 bg-white rounded-xl shadow-[0_5px_40px_-10px_rgba(0,0,0,0.1)] mt-10 border border-slate-200 text-slate-800 font-sans z-50 relative">
-      
+
       {/* Map Image Upload Box */}
       <div className="mb-8 p-6 bg-slate-50 border rounded-xl shadow-inner flex flex-col md:flex-row items-center gap-6 justify-between">
         <div>
@@ -195,17 +195,17 @@ export default function AdminMapPlotter() {
           <p className="text-slate-500 text-sm">Upload a clean map image to serve as your new pin background.</p>
         </div>
         <div className="shrink-0">
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleMapImageUpload} 
-            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 transition-colors cursor-pointer" 
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleMapImageUpload}
+            className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-6 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 transition-colors cursor-pointer"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
+
         {/* Left Side: Form */}
         <div className="lg:col-span-4 space-y-6">
           <div className="border rounded-xl shadow-sm bg-white overflow-hidden">
@@ -223,7 +223,7 @@ export default function AdminMapPlotter() {
                 <label className="block text-sm font-semibold mb-1 text-slate-700">Origin Region/State</label>
                 <input type="text" value={stateName} onChange={e => setStateName(e.target.value)} className="w-full border-slate-300 shadow-sm rounded-md p-2.5 outline-none focus:ring-2 focus:ring-[#6d4626] border" placeholder="e.g. Nooziveedu" />
               </div>
-              
+
               {/* Image Upload for Spice Icon */}
               <div className="border border-slate-200 rounded-md p-3 bg-slate-50">
                 <label className="block text-sm font-semibold mb-2 text-slate-700 flex justify-between">
@@ -238,11 +238,11 @@ export default function AdminMapPlotter() {
                       <span className="text-[10px] text-slate-400">none</span>
                     )}
                   </div>
-                  <input 
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleSpiceImageUpload} 
-                    className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-bold file:bg-[#f5ebd1] file:text-[#6d4626] hover:file:bg-[#e8deca] cursor-pointer" 
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleSpiceImageUpload}
+                    className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-bold file:bg-[#f5ebd1] file:text-[#6d4626] hover:file:bg-[#e8deca] cursor-pointer"
                   />
                 </div>
                 {spiceImage && (
@@ -267,23 +267,23 @@ export default function AdminMapPlotter() {
                         <span className="text-[10px] text-slate-400">none</span>
                       )}
                     </div>
-                    <input 
-                      type="file" 
-                      accept="image/*" 
-                      onChange={handleMapPopupImageUpload} 
-                      className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-bold file:bg-[#f5ebd1] file:text-[#6d4626] hover:file:bg-[#e8deca] cursor-pointer" 
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMapPopupImageUpload}
+                      className="block w-full text-xs text-slate-500 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-bold file:bg-[#f5ebd1] file:text-[#6d4626] hover:file:bg-[#e8deca] cursor-pointer"
                     />
                   </div>
                   {mapPopupImage && (
                     <>
-                      <input 
-                        type="text" 
-                        value={mapPopupCaption} 
-                        onChange={e => setMapPopupCaption(e.target.value)} 
-                        className="w-full border-slate-300 shadow-sm rounded-md p-2 outline-none focus:ring-2 focus:ring-[#6d4626] border text-xs" 
-                        placeholder="Caption (e.g. Khammam: The Land of Prized Mangoes)" 
+                      <input
+                        type="text"
+                        value={mapPopupCaption}
+                        onChange={e => setMapPopupCaption(e.target.value)}
+                        className="w-full border-slate-300 shadow-sm rounded-md p-2 outline-none focus:ring-2 focus:ring-[#6d4626] border text-xs"
+                        placeholder="Caption (e.g. Khammam: The Land of Prized Mangoes)"
                       />
-                      <button onClick={() => {setMapPopupImage(''); setMapPopupCaption('');}} className="text-xs text-red-500 hover:text-red-700 text-left font-medium">
+                      <button onClick={() => { setMapPopupImage(''); setMapPopupCaption(''); }} className="text-xs text-red-500 hover:text-red-700 text-left font-medium">
                         Remove Popup Image & Caption
                       </button>
                     </>
@@ -296,7 +296,7 @@ export default function AdminMapPlotter() {
                 <label className="block text-sm font-semibold mb-1 text-slate-700">History / Description</label>
                 <textarea value={history} onChange={e => setHistory(e.target.value)} className="w-full border-slate-300 shadow-sm rounded-md p-2.5 outline-none focus:ring-2 focus:ring-[#6d4626] border text-sm" rows={4} placeholder="Description about the ingredient..." />
               </div>
-              
+
               <div className={`p-3 rounded-md border text-sm flex items-center gap-2 ${coords ? 'bg-green-50 text-green-800 border-green-200' : 'bg-orange-50 text-orange-800 border-orange-200'}`}>
                 {coords ? (
                   <div className="w-full">
@@ -318,22 +318,22 @@ export default function AdminMapPlotter() {
           </div>
 
           <div className="border rounded-xl shadow-sm bg-white overflow-hidden flex flex-col h-[400px]">
-             <div className="p-4 bg-slate-100 border-b font-bold text-slate-800">
-               Saved Database Entries ({spices.length})
-             </div>
+            <div className="p-4 bg-slate-100 border-b font-bold text-slate-800">
+              Saved Database Entries ({spices.length})
+            </div>
             <ul className="overflow-y-auto flex-1 p-2 space-y-2 custom-scrollbar">
               {spices.length === 0 && <p className="text-slate-500 text-sm italic p-4 text-center">No additions yet. Save your first entry above.</p>}
               {spices.map(spice => (
                 <li key={spice.id} className={`flex justify-between items-center p-3 border rounded-lg transition shadow-sm ${currentId === spice.id ? 'bg-[#f5ebd1] border-[#d8cbb5]' : 'bg-white hover:bg-slate-50'}`}>
                   <div className="flex items-center gap-3 truncate pr-2">
                     <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center relative">
-                      {spice.image_url ? <img src={spice.image_url} alt="icon" className="w-full h-full object-cover" /> : <span className="text-[8px] text-slate-400">img</span>}
+                      {spice.imageUrl ? <img src={spice.imageUrl} alt="icon" className="w-full h-full object-cover" /> : <span className="text-[8px] text-slate-400">img</span>}
                       {/* Indicator if they have a map popup image */}
-                      {spice.map_image_url && <div className="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full border border-white"></div>}
+                      {spice.mapImageUrl && <div className="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full border border-white"></div>}
                     </div>
                     <div>
                       <span className="font-bold text-slate-800 block text-sm truncate">{spice.name}</span>
-                      <span className="text-xs text-slate-500 truncate block">{spice.origin_state}</span>
+                      <span className="text-xs text-slate-500 truncate block">{spice.originState}</span>
                     </div>
                   </div>
                   <div className="flex gap-2 shrink-0">
@@ -352,48 +352,48 @@ export default function AdminMapPlotter() {
             <span className="font-bold text-sm tracking-wide">Interactive Canvas: Click to aim target</span>
             {coords && <span className="text-xs font-mono bg-black/40 px-3 py-1 text-green-300 rounded-full">Target: {coords.x}%, {coords.y}%</span>}
           </div>
-          
+
           <div className="relative border-x-2 border-b-2 border-slate-200 rounded-b-xl overflow-hidden shadow-inner flex items-center justify-center bg-slate-200/50 w-full cursor-crosshair group py-4 flex-1">
             <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex justify-center items-start pt-4 z-0">
-               <span className="select-none text-white bg-black/50 px-4 py-2 rounded-full font-bold backdrop-blur-[2px] shadow-sm">Use crosshair to aim</span>
+              <span className="select-none text-white bg-black/50 px-4 py-2 rounded-full font-bold backdrop-blur-[2px] shadow-sm">Use crosshair to aim</span>
             </div>
 
             <div className="relative inline-block max-w-full z-10">
-              <img 
+              <img
                 ref={imageRef}
-                src={mapImage} 
+                src={mapImage}
                 alt="Base Map Environment"
                 onClick={handleMapClick}
                 className="max-w-full max-h-[65vh] w-auto h-auto object-contain block select-none pointer-events-auto shadow-sm bg-[#fdfaf5]"
               />
-              
+
               {/* Active crosshair */}
               {coords && (
-                <div 
+                <div
                   className="absolute z-20 pointer-events-none transition-all duration-300 ease-out"
                   style={{ left: `${coords.x}%`, top: `${coords.y}%`, transform: 'translate(-50%, -100%)' }}
                 >
                   <div className="w-10 h-10 flex items-center justify-center text-red-600 drop-shadow-2xl animate-pulse">
                     <svg viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                     </svg>
                   </div>
                 </div>
               )}
 
               {/* Saved flat brown dots */}
-              {spices.map(s => (s.id !== currentId && s.map_x !== null && s.map_y !== null) && (
-                <div 
+              {spices.map(s => (s.id !== currentId && s.mapX !== null && s.mapY !== null) && (
+                <div
                   key={s.id}
                   className="absolute z-10 opacity-60 pointer-events-none"
-                  style={{ left: `${s.map_x}%`, top: `${s.map_y}%`, transform: 'translate(-50%, -50%)' }}
+                  style={{ left: `${s.mapX}%`, top: `${s.mapY}%`, transform: 'translate(-50%, -50%)' }}
                 >
                   <div className="w-3 h-3 rounded-full bg-[#6d4626]"></div>
                 </div>
               ))}
             </div>
           </div>
-          
+
         </div>
 
       </div>

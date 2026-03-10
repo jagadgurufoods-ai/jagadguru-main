@@ -26,6 +26,7 @@ interface Product {
     ingredients?: any[];
     pairsWellWith?: string;
     tasteMeter?: number;
+    heritageMapUrl?: string;
     quantity?: number;
     stock: number;
     variants?: Variant[];
@@ -410,7 +411,10 @@ export default function ProductDetail() {
                     {product.ingredients && product.ingredients.length > 0 && (
                         <section className="bg-[#fdfaf5] border-b border-black/5">
                             <div className="max-w-7xl mx-auto">
-                                <InteractiveSpiceMap spices={product.ingredients} />
+                                <InteractiveSpiceMap
+                                    spices={product.ingredients}
+                                    mapImage={product.heritageMapUrl || '/india-map.png'}
+                                />
                             </div>
                         </section>
                     )}

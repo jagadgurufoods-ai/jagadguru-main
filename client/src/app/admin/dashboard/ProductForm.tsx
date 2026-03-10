@@ -31,8 +31,12 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         grandmasSays: initialData?.grandmasSays || '',
         pairsWellWith: initialData?.pairsWellWith || '',
         ingredientsText: initialData?.ingredientsText || '',
-        tasteMeter: initialData?.tasteMeter?.toString() || '3'
+        tasteMeter: initialData?.tasteMeter?.toString() || '3',
+        heritageMapUrl: initialData?.heritageMapUrl || ''
     });
+
+    const [heritageMap, setHeritageMap] = useState<File | null>(null);
+    const [heritageMapPreview, setHeritageMapPreview] = useState<string>(initialData?.heritageMapUrl || '');
 
     const [ingredients, setIngredients] = useState<any[]>(initialData?.ingredients || []);
 
@@ -80,6 +84,18 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
         }
     };
 
+    const handleHeritageMapChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setHeritageMap(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setHeritageMapPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -102,6 +118,10 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
 
         if (image) {
             data.append('image', image);
+        }
+
+        if (heritageMap) {
+            data.append('heritageMap', heritageMap);
         }
 
         data.append('variants', JSON.stringify(filteredVariants));
@@ -267,10 +287,31 @@ export default function ProductForm({ onClose, onSuccess, initialData }: Product
                             />
                         </div>
 
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-xs font-black text-slate-400 uppercase tracking-widest ml-1">Heritage Map Background</label>
+                            <div className="relative group">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleHeritageMapChange}
+                                    className="hidden"
+                                    id="heritage-map-upload"
+                                />
+                                <label
+                                    htmlFor="heritage-map-upload"
+                                    className="flex flex-col items-center justify-center w-full h-32 bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl cursor-pointer group-hover:bg-slate-100 group-hover:border-[#bf8345] transition-all font-bold text-slate-400"
+                                >
+                                    {heritageMap ? heritageMap.name : initialData?.heritageMapUrl ? 'CHANGE MAP' : 'USE CUSTOM MAP (Default: India)'}
+                                    {heritageMapPreview && <img src={heritageMapPreview} className="mt-2 h-12 object-contain rounded border border-slate-200" alt="Preview" />}
+                                </label>
+                            </div>
+                        </div>
+
                         <div className="md:col-span-2 p-8 bg-slate-50 rounded-[40px] border border-slate-100">
                             <ProductIngredientEditor
                                 ingredients={ingredients}
                                 onChange={setIngredients}
+                                selectedMap={heritageMapPreview}
                             />
                         </div>
 

@@ -84,6 +84,7 @@ model Product {
   imageUrl        String?               @map("image_url")
   pairsWellWith   String?               @map("pairs_well_with")
   tasteMeter      Int?                  @map("taste_meter") // 1-5 scale
+  heritageMapUrl  String?               @map("heritage_map_url")
   createdAt       DateTime              @default(now()) @map("created_at")
   orderItems      OrderItem[]
   wishlists       Wishlist[]

@@ -7,11 +7,12 @@ import { Plus, Trash2, MapPin, X, Image as ImageIcon } from 'lucide-react';
 interface ProductIngredientEditorProps {
     ingredients: Spice[];
     onChange: (ingredients: Spice[]) => void;
+    selectedMap?: string;
 }
 
-export default function ProductIngredientEditor({ ingredients, onChange }: ProductIngredientEditorProps) {
+export default function ProductIngredientEditor({ ingredients, onChange, selectedMap }: ProductIngredientEditorProps) {
     const [editingIndex, setEditingIndex] = useState<number | null>(null);
-    const [mapImage, setMapImage] = useState<string>('/india-map.png');
+    const mapImage = selectedMap || '/india-map.png';
     const imageRef = useRef<HTMLImageElement>(null);
 
     const addIngredient = () => {

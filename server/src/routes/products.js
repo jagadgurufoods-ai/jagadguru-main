@@ -50,17 +50,24 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create product (Admin)
-router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, res) => {
+router.post('/', requireAuth, requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'heritageMap', maxCount: 1 }]), async (req, res) => {
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredientsText, pairsWellWith, tasteMeter, variants, ingredients
+        ingredientsText, pairsWellWith, tasteMeter, heritageMapUrl: bodyHeritageMapUrl,
+        variants, ingredients
     } = req.body;
 
     let imageUrl = null;
+    let heritageMapUrl = bodyHeritageMapUrl || null;
     try {
-        if (req.file) {
-            imageUrl = await uploadToS3(req.file);
+        if (req.files) {
+            if (req.files.image) {
+                imageUrl = await uploadToS3(req.files.image[0]);
+            }
+            if (req.files.heritageMap) {
+                heritageMapUrl = await uploadToS3(req.files.heritageMap[0]);
+            }
         }
 
         const parsedVariants = variants ? JSON.parse(variants) : [];
@@ -79,6 +86,7 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
                 imageUrl,
                 pairsWellWith,
                 tasteMeter: tasteMeter ? parseInt(tasteMeter) : null,
+                heritageMapUrl,
                 variants: {
                     create: parsedVariants.map(v => ({
                         weight: v.weight,
@@ -110,11 +118,12 @@ router.post('/', requireAuth, requireAdmin, upload.single('image'), async (req, 
 });
 
 // Update product (Admin)
-router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req, res) => {
+router.put('/:id', requireAuth, requireAdmin, upload.fields([{ name: 'image', maxCount: 1 }, { name: 'heritageMap', maxCount: 1 }]), async (req, res) => {
     const {
         name, description, price, originalPrice,
         stock, categoryId, quantity, grandmasSays,
-        ingredientsText, pairsWellWith, tasteMeter, variants, ingredients
+        ingredientsText, pairsWellWith, tasteMeter, heritageMapUrl: bodyHeritageMapUrl,
+        variants, ingredients
     } = req.body;
 
     try {
@@ -128,10 +137,15 @@ router.put('/:id', requireAuth, requireAdmin, upload.single('image'), async (req
         if (quantity !== undefined) data.quantity = quantity ? parseFloat(quantity) : null;
         if (grandmasSays !== undefined) data.grandmasSays = grandmasSays;
         if (ingredientsText !== undefined) data.ingredientsText = ingredientsText;
-        if (pairsWellWith !== undefined) data.pairsWellWith = pairsWellWith;
-        if (tasteMeter !== undefined) data.tasteMeter = tasteMeter ? parseInt(tasteMeter) : null;
-        if (req.file) {
-            data.imageUrl = await uploadToS3(req.file);
+        if (bodyHeritageMapUrl !== undefined) data.heritageMapUrl = bodyHeritageMapUrl;
+
+        if (req.files) {
+            if (req.files.image) {
+                data.imageUrl = await uploadToS3(req.files.image[0]);
+            }
+            if (req.files.heritageMap) {
+                data.heritageMapUrl = await uploadToS3(req.files.heritageMap[0]);
+            }
         }
 
         if (variants) {
