@@ -337,62 +337,32 @@ export default function ProductDetail() {
                         </div>
                     </section>
 
-                    {/* Heritage Map Layer */}
-                    <section className="relative overflow-hidden py-16 lg:py-32 bg-[#fdfaf5]">
-                        <div className="max-w-[1240px] mx-auto px-6 sm:px-12 relative flex items-center min-h-[400px] lg:min-h-[600px]">
+                    {/* Heritage Map Section */}
+                    {product.ingredients && product.ingredients.length > 0 && (
+                        <section className="relative overflow-hidden py-16 lg:py-32 bg-[#fdfaf5]">
                             <div className="absolute inset-x-0 top-0 bottom-0 opacity-[0.03] pointer-events-none">
                                 <img src="/assets/image 73.png" className="w-full h-full object-cover scale-150" />
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center w-full">
-                                <div className="space-y-12 z-10 relative">
-                                    <div className="space-y-4">
-                                        <img src="/assets/logo.png" className="h-10 w-auto opacity-20 mb-4" />
-                                        <h2 className="text-[40px] sm:text-[60px] lg:text-[84px] font-serif font-[700] text-[#3a2212] leading-[1] tracking-tighter">
-                                            The Source of <br />
-                                            <span className="text-[#bf8345] inline-flex items-center gap-4">
-                                                Our Heritage
-                                                <span className="text-[11px] font-sans font-[800] uppercase tracking-widest text-[#bf8345]/50 px-3 py-1 border border-[#bf8345]/20 rounded-full">since 1974</span>
-                                            </span>
-                                        </h2>
-                                    </div>
-                                    <p className="text-[17px] text-black/50 leading-[1.8] font-[500] max-w-[500px]">
-                                        Jagadguru Foods traces its roots to the fertile lands of South India, where generations of farmers have cultivated spices and ingredients with unparalleled dedication.
-                                    </p>
-                                    {product.ingredientsText && (
-                                        <div className="space-y-4">
-                                            <h4 className="text-[13px] font-[800] tracking-[0.2em] text-[#bf8345] uppercase">Key Ingredients</h4>
-                                            <p className="text-[15px] text-black/60 leading-relaxed max-w-[500px]">{product.ingredientsText}</p>
-                                        </div>
-                                    )}
+                            <div className="max-w-7xl mx-auto px-6 sm:px-12 relative z-10">
+                                <div className="mb-16">
+                                    <img src="/assets/logo.png" className="h-10 w-auto opacity-20 mb-6" />
+                                    <h2 className="text-[40px] sm:text-[60px] lg:text-[84px] font-serif font-[700] text-[#3a2212] leading-[1] tracking-tighter">
+                                        The Source of <br />
+                                        <span className="text-[#bf8345] inline-flex flex-wrap items-center gap-4">
+                                            Our Heritage
+                                            <span className="text-[11px] font-sans font-[800] uppercase tracking-widest text-[#bf8345]/50 px-3 py-1 border border-[#bf8345]/20 rounded-full">since 1974</span>
+                                        </span>
+                                    </h2>
                                 </div>
 
-                                <div className="relative z-10">
-                                    <div className="aspect-[4/5] bg-white rounded-[40px] custom-shadow-lg p-1 border border-black/5 overflow-hidden">
-                                        <div className="w-full h-full p-12 flex flex-col items-center justify-center text-center space-y-8 relative">
-                                            <div className="absolute inset-0 opacity-5 pointer-events-none bg-[url('/assets/image 73.png')] bg-cover" />
-                                            <div className="relative">
-                                                <div className="w-1 h-20 bg-gradient-to-t from-[#bf8345] to-transparent mb-8 mx-auto" />
-                                                <div className="w-20 h-20 rounded-full bg-[#bf8345] flex items-center justify-center shadow-2xl shadow-orange-300">
-                                                    <Star className="w-8 h-8 text-white fill-white" />
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <span className="text-[11px] font-[800] tracking-[0.4em] text-[#bf8345] uppercase">Authentic Region</span>
-                                                <h4 className="text-[28px] sm:text-[36px] font-serif font-[700] text-[#3a2212]">Andhra Pradesh</h4>
-                                            </div>
-                                            <p className="text-[14px] text-black/50 leading-relaxed max-w-[280px]">Known as the spice capital, where our journey began three generations ago.</p>
-
-                                            <div className="absolute top-10 right-10 bg-[#bf8345]/5 px-4 py-2 rounded-full flex items-center gap-2 border border-[#bf8345]/10">
-                                                <div className="w-2 h-2 rounded-full bg-[#bf8345] animate-pulse" />
-                                                <span className="text-[10px] font-[800] text-[#bf8345] tracking-widest uppercase">Verified Source</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                <InteractiveSpiceMap
+                                    spices={product.ingredients}
+                                    mapImage={product.heritageMapUrl || '/india-map.png'}
+                                />
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    )}
 
                     {/* Grandma Says Section */}
                     <section className="py-16 lg:py-24 px-6 sm:px-16 bg-[#f7f3ed] border-y border-black/5">
@@ -406,18 +376,6 @@ export default function ProductDetail() {
                             </p>
                         </div>
                     </section>
-
-                    {/* Interactive Heritage Map Section */}
-                    {product.ingredients && product.ingredients.length > 0 && (
-                        <section className="bg-[#fdfaf5] border-b border-black/5">
-                            <div className="max-w-7xl mx-auto">
-                                <InteractiveSpiceMap
-                                    spices={product.ingredients}
-                                    mapImage={product.heritageMapUrl || '/india-map.png'}
-                                />
-                            </div>
-                        </section>
-                    )}
 
                     {/* You May Like Section */}
                     {pairsProducts.length > 0 && (
